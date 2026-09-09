@@ -5,6 +5,7 @@ export type ModuleId =
   | 'circuits'
   | 'codelab'
   | 'dbms'
+  | 'ai'
   | 'study'
   | 'knowledge'
   | 'assessment'
@@ -157,3 +158,64 @@ export interface Question {
   correctIndex: number;
   explanation: string;
 }
+
+// User Profile
+export interface UserProfile {
+  name: string;
+  email: string;
+  avatarUrl: string;
+  title?: string;
+  bio?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  leetcodeUrl?: string;
+  codeforcesUrl?: string;
+  joinedAt: number;
+}
+
+// CodeLab Virtual Files & Folders
+export interface CodeFile {
+  id: string;
+  name: string;
+  language: 'python' | 'javascript' | 'java' | 'cpp' | 'sql' | 'text' | 'json';
+  content: string;
+  folder: string;
+  isCustom?: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+// AI Copilot Chat Message
+export interface AiChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: number;
+  codeSnippet?: string;
+}
+
+// AI Assessment Problem
+export interface AiAssessmentProblem {
+  id: string;
+  track: 'DSA' | 'OOP' | 'System Design' | 'Interview';
+  title: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  language: 'python' | 'javascript' | 'java' | 'cpp' | 'sql';
+  description: string;
+  starterCode: string;
+  hints: string[];
+  expectedComplexity?: string;
+}
+
+// AI Assessment Evaluation Result
+export interface AiAssessmentEvaluation {
+  score: number; // 0 to 100
+  verdict: 'ACCEPTED' | 'NEEDS_OPTIMIZATION' | 'LOGICAL_ERROR' | 'INCOMPLETE';
+  timeComplexity: string;
+  spaceComplexity: string;
+  strengths: string[];
+  improvements: string[];
+  detailedFeedback: string;
+  suggestedSolution?: string;
+}
+

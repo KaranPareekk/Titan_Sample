@@ -138,7 +138,35 @@ export class SqlEngine {
       return this.handleSelect(clean);
     }
 
-    throw new Error(`Unsupported SQL command. (Must begin with SELECT, INSERT, UPDATE, DELETE, or CREATE TABLE)`);
+    // 6. DROP TABLE
+    if (upper.startsWith('DROP TABLE')) {
+      const match = clean.match(/DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?(\w+)/i);
+      if (!match) throw new Error('Syntax error in DROP TABLE statement.');
+      const tbl = match[1].toLowerCase();
+      if (!this.tables[tbl]) {
+        if (upper.includes('IF EXISTS')) {
+          return { affectedRows: 0 };
+        }
+        throw new Error(`Table '${tbl}' does not exist.`);
+      }
+      delete this.tables[tbl];
+      return { affectedRows: 0 };
+    }
+
+    // 7. SHOW TABLES
+    if (upper.startsWith('SHOW TABLES')) {
+      const tableNames = Object.keys(this.tables).map((t) => ({
+        table_name: t,
+        columns: this.tables[t].columns.length,
+        row_count: this.tables[t].rows.length,
+      }));
+      return {
+        columns: ['table_name', 'columns', 'row_count'],
+        rows: tableNames,
+      };
+    }
+
+    throw new Error(`Unsupported SQL command. (Must begin with SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, or DROP TABLE)`);
   }
 
   private handleCreateTable(stmt: string) {

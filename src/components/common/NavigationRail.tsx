@@ -11,6 +11,7 @@ import {
   Gamepad2,
   FolderGit2,
   Sparkles,
+  Bot,
 } from 'lucide-react';
 import { ModuleId } from '../../types';
 
@@ -34,7 +35,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'circuits', label: 'Digital Logic', icon: Cpu, tag: 'LOGIC' },
   { id: 'codelab', label: 'Code Lab', icon: Code2, tag: 'IDE' },
   { id: 'dbms', label: 'SQL Workbench', icon: Database, tag: 'SQL' },
-  { id: 'study', label: 'Study Mode', icon: Sparkles, tag: 'LEARN' },
+  { id: 'ai', label: 'AI Copilot', icon: Bot, tag: 'AI' },
   { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, tag: 'REPO' },
   { id: 'assessment', label: 'Assessment', icon: GraduationCap, tag: 'TEST' },
   { id: 'games', label: 'Games Lab', icon: Gamepad2, tag: 'RETRO' },

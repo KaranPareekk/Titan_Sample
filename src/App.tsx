@@ -13,7 +13,7 @@ import { DbmsLab } from './components/dbms/DbmsLab';
 import { GamesHub } from './components/games/GamesHub';
 import { KnowledgeBase } from './components/knowledge/KnowledgeBase';
 import { AssessmentLab } from './components/assessment/AssessmentLab';
-import { StudyLab } from './components/study/StudyLab';
+import { AiCopilot } from './components/ai/AiCopilot';
 import { WorkspaceView } from './components/workspace/WorkspaceView';
 
 export default function App() {
@@ -78,8 +78,9 @@ export default function App() {
         return <KnowledgeBase />;
       case 'assessment':
         return <AssessmentLab />;
+      case 'ai':
       case 'study':
-        return <StudyLab />;
+        return <AiCopilot />;
       case 'workspace':
         return <WorkspaceView onOpenCodeLab={() => setCurrentModule('codelab')} />;
       default:

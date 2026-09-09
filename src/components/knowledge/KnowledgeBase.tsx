@@ -55,14 +55,14 @@ export const KnowledgeBase: React.FC = () => {
       {/* Top Header */}
       <div
         id="kb-toolbar"
-        className="h-14 bg-[#0c1017] border-b border-zinc-800 px-4 flex flex-wrap items-center justify-between gap-3 shrink-0"
+        className="min-h-[3.75rem] h-auto py-2.5 bg-[#0c1017] border-b border-zinc-800 px-4 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-20"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+          <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
             <BookOpen className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-tech text-xs font-bold text-zinc-200">
+            <span className="font-tech text-xs font-bold text-zinc-200 tracking-wide">
               TITAN ENGINEERING KNOWLEDGE BASE
             </span>
             <span className="block text-[10px] font-mono text-zinc-400">
@@ -72,35 +72,41 @@ export const KnowledgeBase: React.FC = () => {
         </div>
 
         {/* Category switcher */}
-        <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800 font-mono text-xs">
+        <div className="relative z-30 flex items-center gap-1.5 bg-zinc-900/90 p-1 rounded-lg border border-zinc-700/70 font-mono text-xs shadow-md">
           <button
+            type="button"
+            id="btn-kb-complexity"
             onClick={() => setActiveCategory('complexity')}
-            className={`px-3 py-1 rounded transition-all ${
+            className={`px-3 py-1.5 rounded cursor-pointer transition-all duration-150 font-semibold ${
               activeCategory === 'complexity'
-                ? 'bg-cyan-500 text-black font-bold shadow-[0_0_10px_#06b6d4]'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-cyan-500 text-black font-bold shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
             }`}
           >
             Big-O Complexity
           </button>
 
           <button
+            type="button"
+            id="btn-kb-hierarchy"
             onClick={() => setActiveCategory('hierarchy')}
-            className={`px-3 py-1 rounded transition-all ${
+            className={`px-3 py-1.5 rounded cursor-pointer transition-all duration-150 font-semibold ${
               activeCategory === 'hierarchy'
-                ? 'bg-cyan-500 text-black font-bold shadow-[0_0_10px_#06b6d4]'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-cyan-500 text-black font-bold shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
             }`}
           >
             Memory Latency Hierarchy
           </button>
 
           <button
+            type="button"
+            id="btn-kb-bitwise"
             onClick={() => setActiveCategory('bitwise')}
-            className={`px-3 py-1 rounded transition-all ${
+            className={`px-3 py-1.5 rounded cursor-pointer transition-all duration-150 font-semibold ${
               activeCategory === 'bitwise'
-                ? 'bg-cyan-500 text-black font-bold shadow-[0_0_10px_#06b6d4]'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-cyan-500 text-black font-bold shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
             }`}
           >
             Interactive Bitwise Math
