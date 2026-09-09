@@ -651,8 +651,7 @@ Return a JSON response with this exact structure:
             {/* Code Solution Textarea */}
             <div className="h-1/2 flex border-b border-zinc-800 bg-[#05070a] overflow-hidden font-mono text-xs">
               <div className="w-10 bg-[#080b11] border-r border-zinc-800/80 py-3 text-right pr-2 text-zinc-600 select-none overflow-hidden shrink-0">
-                {Array.from({ length: Math.max(1, userCode.split('
-').length) }).map((_, i) => (
+                {Array.from({ length: Math.max(1, userCode.split('\n').length) }).map((_, i) => (
                   <div key={i} className="leading-relaxed">
                     {i + 1}
                   </div>
