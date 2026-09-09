@@ -32,6 +32,12 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ errorInfo });
   }
 
+  public componentDidUpdate(prevProps: Props) {
+    if (prevProps.moduleName !== this.props.moduleName && this.state.hasError) {
+      this.setState({ hasError: false, error: null, errorInfo: null });
+    }
+  }
+
   private handleReset = () => {
     this.setState({ hasError: false, error: null, errorInfo: null });
     if (this.props.onReset) {

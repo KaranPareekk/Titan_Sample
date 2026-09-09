@@ -118,6 +118,7 @@ export default function App() {
           className="flex-1 h-full overflow-hidden relative bg-[#07090E]"
         >
           <ErrorBoundary
+            key={currentModule}
             moduleName={currentModule.toUpperCase()}
             onReset={() => setCurrentModule('home')}
           >
