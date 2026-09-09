@@ -28,14 +28,85 @@ import { AiAssessmentProblem, AiAssessmentEvaluation } from '../../types';
 
 interface MCQQuestion {
   id: number;
-  category: 'DSA' | 'Memory' | 'DBMS' | 'Circuits' | 'OOP';
+  category: string;
   prompt: string;
   options: string[];
   correctIndex: number;
   explanation: string;
 }
 
-const MCQ_QUESTIONS: MCQQuestion[] = [
+const BEGINNER_MCQ_QUESTIONS: MCQQuestion[] = [
+  {
+    id: 101,
+    category: 'Variables',
+    prompt: 'What is a variable in programming?',
+    options: [
+      'A named storage box in memory that holds data',
+      'A physical cable inside a computer',
+      'A special keyboard button',
+      'A permanent web page on the internet',
+    ],
+    correctIndex: 0,
+    explanation: 'A variable is a labeled container in memory used to store values like numbers or text that can be used and changed.',
+  },
+  {
+    id: 102,
+    category: 'Math & Logic',
+    prompt: 'What is the result of 10 % 3 in programming?',
+    options: ['1', '3', '0.33', '30'],
+    correctIndex: 0,
+    explanation: 'The % (modulo) operator gives the remainder of division. 10 divided by 3 is 3 with a remainder of 1.',
+  },
+  {
+    id: 103,
+    category: 'Conditionals',
+    prompt: 'What does an "if" statement do in code?',
+    options: [
+      'Makes a decision and runs code only if a condition is True',
+      'Repeats code 100 times automatically',
+      'Shuts down the computer screen',
+      'Renames a code file',
+    ],
+    correctIndex: 0,
+    explanation: 'An if statement checks whether a condition is true, allowing your program to make smart decisions.',
+  },
+  {
+    id: 104,
+    category: 'Lists & Arrays',
+    prompt: 'What is the index number of the FIRST item in a list (in Python/JS)?',
+    options: ['0', '1', '-1', '10'],
+    correctIndex: 0,
+    explanation: 'Most programming languages use zero-based indexing, so the first element is always at index 0.',
+  },
+  {
+    id: 105,
+    category: 'Functions',
+    prompt: 'What does the "return" keyword do inside a function?',
+    options: [
+      'Hands a result back to whoever called the function and ends it',
+      'Restarts the computer',
+      'Deletes all code in the file',
+      'Loops forever',
+    ],
+    correctIndex: 0,
+    explanation: 'The return statement hands back the final answer from a function to where it was called.',
+  },
+  {
+    id: 106,
+    category: 'Loops',
+    prompt: 'Which loop structure will run forever if you forget to stop it?',
+    options: [
+      'while True:',
+      'for i in range(5):',
+      'if score > 10:',
+      'print("Hello")',
+    ],
+    correctIndex: 0,
+    explanation: '"while True:" runs infinitely until you break out or exit, because the condition never becomes False on its own.',
+  },
+];
+
+const ADVANCED_MCQ_QUESTIONS: MCQQuestion[] = [
   {
     id: 1,
     category: 'DSA',
@@ -86,7 +157,145 @@ const MCQ_QUESTIONS: MCQQuestion[] = [
   },
 ];
 
+const BEGINNER_PROBLEMS: AiAssessmentProblem[] = [
+  {
+    id: 'prob_beg_1',
+    track: 'Beginner',
+    title: 'Hello World & Friendly Greeting',
+    difficulty: 'easy',
+    language: 'python',
+    description: `Write a function \`greet(name: str) -> str\` that takes a person's name and returns a personalized greeting.
+
+**Goal:**
+- Input: \`name = "Alice"\`
+- Output: \`"Hello, Alice!"\`
+
+**Example:**
+Calling \`greet("Bob")\` should return \`"Hello, Bob!"\`.`,
+    starterCode: `def greet(name: str) -> str:
+    # Write your code below to return "Hello, " + name + "!"
+    return f"Hello, {name}!"
+`,
+    hints: [
+      'You can combine text using string formatting: f"Hello, {name}!" or "Hello, " + name + "!"',
+      'Make sure you return the string, not just print it.',
+    ],
+    expectedComplexity: 'O(1) Time, O(1) Space',
+  },
+  {
+    id: 'prob_beg_2',
+    track: 'Beginner',
+    title: 'Even or Odd Number Checker',
+    difficulty: 'easy',
+    language: 'python',
+    description: `Write a function \`is_even(n: int) -> bool\` that checks whether a whole number is even.
+
+**Goal:**
+- Return \`True\` if \`n\` is even (like 2, 4, 10, -8).
+- Return \`False\` if \`n\` is odd (like 1, 3, 7, 9).
+
+**Example:**
+\`is_even(4)\` -> \`True\`
+\`is_even(7)\` -> \`False\``,
+    starterCode: `def is_even(n: int) -> bool:
+    # A number is even if dividing by 2 leaves a remainder of 0
+    return n % 2 == 0
+`,
+    hints: [
+      'Use the modulo operator: n % 2. If the remainder is 0, the number is even.',
+      'In Python, n % 2 == 0 evaluates directly to True or False!',
+    ],
+    expectedComplexity: 'O(1) Time, O(1) Space',
+  },
+  {
+    id: 'prob_beg_3',
+    track: 'Beginner',
+    title: 'Find the Maximum of Three Numbers',
+    difficulty: 'easy',
+    language: 'python',
+    description: `Write a function \`find_max(a: int, b: int, c: int) -> int\` that returns the largest of three given numbers.
+
+**Goal:**
+- Input: \`a = 5, b = 12, c = 8\`
+- Output: \`12\`
+
+**Example:**
+\`find_max(10, 25, 14)\` -> \`25\``,
+    starterCode: `def find_max(a: int, b: int, c: int) -> int:
+    # Compare the three numbers using if-else statements or max()
+    if a >= b and a >= c:
+        return a
+    elif b >= a and b >= c:
+        return b
+    else:
+        return c
+`,
+    hints: [
+      'Compare a with b and c. If both conditions are true, a is largest.',
+      'You can also use Python\'s built-in max(a, b, c) function!',
+    ],
+    expectedComplexity: 'O(1) Time, O(1) Space',
+  },
+  {
+    id: 'prob_beg_4',
+    track: 'Beginner',
+    title: 'Sum of Numbers from 1 to N',
+    difficulty: 'easy',
+    language: 'python',
+    description: `Write a function \`sum_to_n(n: int) -> int\` that adds up all whole numbers from 1 up to \`n\`.
+
+**Goal:**
+- If \`n = 5\`, the answer is 1 + 2 + 3 + 4 + 5 = 15.
+- If \`n = 1\`, the answer is 1.
+
+**Example:**
+\`sum_to_n(4)\` -> \`10\` (1 + 2 + 3 + 4)`,
+    starterCode: `def sum_to_n(n: int) -> int:
+    # Use a for loop to add each number from 1 to n to a running total
+    total = 0
+    for i in range(1, n + 1):
+        total += i
+    return total
+`,
+    hints: [
+      'Initialize a variable total = 0 before the loop.',
+      'Remember that range(1, n + 1) in Python goes from 1 up to n.',
+    ],
+    expectedComplexity: 'O(N) Time, O(1) Space',
+  },
+  {
+    id: 'prob_beg_5',
+    track: 'Beginner',
+    title: 'Count Vowels in a Word',
+    difficulty: 'easy',
+    language: 'python',
+    description: `Write a function \`count_vowels(word: str) -> int\` that counts how many vowels (A, E, I, O, U) appear in a word.
+
+**Goal:**
+- Input: \`word = "banana"\` -> Output: 3 ('a', 'a', 'a')
+- Input: \`word = "sky"\` -> Output: 0
+
+**Example:**
+\`count_vowels("Programming")\` -> 3 ('o', 'a', 'i')`,
+    starterCode: `def count_vowels(word: str) -> int:
+    # Check each letter in the word against 'aeiouAEIOU'
+    vowels = "aeiouAEIOU"
+    count = 0
+    for char in word:
+        if char in vowels:
+            count += 1
+    return count
+`,
+    hints: [
+      'Loop over each character using "for char in word:".',
+      'Check if char is in "aeiouAEIOU". If yes, increase your counter.',
+    ],
+    expectedComplexity: 'O(N) Time, O(1) Space',
+  },
+];
+
 const CURATED_PROBLEMS: AiAssessmentProblem[] = [
+  ...BEGINNER_PROBLEMS,
   {
     id: 'prob_dsa_1',
     track: 'DSA',
@@ -241,10 +450,22 @@ export const AssessmentLab: React.FC = () => {
   // Main Assessment Mode: 'ai_coding' | 'mcq'
   const [assessmentMode, setAssessmentMode] = useState<'ai_coding' | 'mcq'>('ai_coding');
 
+  // Skill Level: 'beginner' | 'advanced'
+  const [levelTab, setLevelTab] = useState<'beginner' | 'advanced'>('beginner');
+
   // AI Coding Assessment States
-  const [selectedTrack, setSelectedTrack] = useState<'DSA' | 'OOP' | 'System Design' | 'Interview'>('DSA');
+  const [selectedTrack, setSelectedTrack] = useState<'Beginner' | 'DSA' | 'OOP' | 'System Design' | 'Interview'>('Beginner');
   const [selectedLang, setSelectedLang] = useState<'python' | 'javascript' | 'java' | 'cpp' | 'sql'>('python');
   const [selectedProblemIndex, setSelectedProblemIndex] = useState<number>(0);
+  const [showDetailedSpecs, setShowDetailedSpecs] = useState<boolean>(false);
+  const [showHints, setShowHints] = useState<boolean>(false);
+
+  // MCQ Track: 'beginner' | 'advanced'
+  const [mcqTrack, setMcqTrack] = useState<'beginner' | 'advanced'>('beginner');
+  const activeMCQs = useMemo(
+    () => (mcqTrack === 'beginner' ? BEGINNER_MCQ_QUESTIONS : ADVANCED_MCQ_QUESTIONS),
+    [mcqTrack]
+  );
 
   const activeProblem = useMemo(() => {
     const trackProblems = CURATED_PROBLEMS.filter((p) => p.track === selectedTrack);
@@ -259,6 +480,7 @@ export const AssessmentLab: React.FC = () => {
   useEffect(() => {
     setUserCode(activeProblem.starterCode);
     setEvaluationResult(null);
+    setShowHints(false);
   }, [activeProblem.id]);
 
   // MCQ State
@@ -267,6 +489,15 @@ export const AssessmentLab: React.FC = () => {
   const [mcqSubmitted, setMcqSubmitted] = useState<boolean>(false);
   const [mcqTimeLeft, setMcqTimeLeft] = useState<number>(180);
   const [mcqTimerRunning, setMcqTimerRunning] = useState<boolean>(false);
+
+  // Reset MCQ when switching track
+  useEffect(() => {
+    setMcqIndex(0);
+    setMcqAnswers({});
+    setMcqSubmitted(false);
+    setMcqTimeLeft(180);
+    setMcqTimerRunning(false);
+  }, [mcqTrack]);
 
   // MCQ Timer
   useEffect(() => {
@@ -298,7 +529,7 @@ export const AssessmentLab: React.FC = () => {
 
     let score = 0;
     const weakTopics: string[] = [];
-    MCQ_QUESTIONS.forEach((q) => {
+    activeMCQs.forEach((q) => {
       if (mcqAnswers[q.id] === q.correctIndex) {
         score++;
       } else {
@@ -308,11 +539,11 @@ export const AssessmentLab: React.FC = () => {
 
     StorageService.saveAssessment({
       score,
-      totalQuestions: MCQ_QUESTIONS.length,
-      mode: 'MCQ Assessment',
+      totalQuestions: activeMCQs.length,
+      mode: mcqTrack === 'beginner' ? 'Beginner Basics Quiz' : 'Engineering Core Exam',
       completedAt: Date.now(),
-      domain: 'Engineering Core',
-      difficulty: 'medium',
+      domain: mcqTrack === 'beginner' ? 'Beginner Fundamentals' : 'Engineering Core',
+      difficulty: mcqTrack === 'beginner' ? 'easy' : 'medium',
       timeSpentSec: 180 - mcqTimeLeft,
       weakTopics,
     });
@@ -329,27 +560,44 @@ export const AssessmentLab: React.FC = () => {
 
     if (apiKey) {
       try {
-        const prompt = `You are a Senior Principal Engineer and Technical Interviewer at Google.
+        const isBeginner = activeProblem.track === 'Beginner';
+        const prompt = isBeginner
+          ? `You are an encouraging and patient programming tutor for beginners.
+Evaluate this student's solution for "${activeProblem.title}".
+PROBLEM: ${activeProblem.description}
+STUDENT CODE (${selectedLang}):
+\`\`\`${selectedLang}
+${userCode}
+\`\`\`
+Return JSON matching:
+{
+  "score": 95,
+  "verdict": "ACCEPTED", // "ACCEPTED", "NEEDS_OPTIMIZATION", "INCOMPLETE"
+  "timeComplexity": "O(1)",
+  "spaceComplexity": "O(1)",
+  "strengths": ["Clear logic", "Returns correct output"],
+  "improvements": ["Optional improvement suggestion"],
+  "detailedFeedback": "Encouraging friendly feedback for a beginner.",
+  "suggestedSolution": "Clean solution code"
+}`
+          : `You are a Senior Principal Engineer and Technical Interviewer at Google.
 Evaluate the following candidate code submission for the problem: "${activeProblem.title}".
-
 PROBLEM DESCRIPTION:
 ${activeProblem.description}
-
 CANDIDATE CODE (${selectedLang}):
 \`\`\`${selectedLang}
 ${userCode}
 \`\`\`
-
-Return a JSON response with this exact structure:
+Return JSON:
 {
   "score": 92,
-  "verdict": "ACCEPTED", // one of "ACCEPTED", "NEEDS_OPTIMIZATION", "LOGICAL_ERROR", "INCOMPLETE"
+  "verdict": "ACCEPTED",
   "timeComplexity": "O(N)",
   "spaceComplexity": "O(N)",
-  "strengths": ["Clean idiomatic code", "Optimal asymptotic time"],
-  "improvements": ["Consider bounds check on empty inputs"],
-  "detailedFeedback": "Thorough assessment feedback...",
-  "suggestedSolution": "// optimal clean solution code"
+  "strengths": ["Clean idiomatic code"],
+  "improvements": ["Consider bounds check"],
+  "detailedFeedback": "Thorough technical review",
+  "suggestedSolution": "// optimal solution"
 }`;
 
         const response = await fetch(
@@ -386,6 +634,75 @@ Return a JSON response with this exact structure:
     // Built-in intelligent evaluation engine (Offline Fallback)
     setTimeout(() => {
       const codeLength = userCode.trim().length;
+      const isBeginner = activeProblem.track === 'Beginner';
+
+      if (isBeginner) {
+        let score = 95;
+        let verdict: AiAssessmentEvaluation['verdict'] = 'ACCEPTED';
+        let feedback = '🎉 Fantastic job! Your code solves the problem cleanly and meets all expectations.';
+        const strengths: string[] = [
+          'Correct function signature and return type.',
+          'Clean, readable code structure.',
+          'Passes basic test cases without errors.',
+        ];
+        const improvements: string[] = [];
+
+        // Specific problem checks
+        if (activeProblem.id === 'prob_beg_1') {
+          if (!userCode.includes('return') || (!userCode.includes('Hello') && !userCode.includes('hello'))) {
+            score = 50;
+            verdict = 'INCOMPLETE';
+            feedback = 'Almost there! Make sure your function uses "return" to send back "Hello, " + name + "!".';
+            improvements.push('Add a return statement that includes "Hello, " and the name parameter.');
+          }
+        } else if (activeProblem.id === 'prob_beg_2') {
+          if (!userCode.includes('%') && !userCode.includes('even')) {
+            score = 50;
+            verdict = 'INCOMPLETE';
+            feedback = 'Check your modulo logic! In Python, "n % 2 == 0" checks if a number is even.';
+            improvements.push('Use the % (modulo) operator to check if dividing by 2 leaves a remainder of 0.');
+          }
+        } else if (activeProblem.id === 'prob_beg_3') {
+          if (!userCode.includes('max') && !userCode.includes('if')) {
+            score = 50;
+            verdict = 'INCOMPLETE';
+            feedback = 'Compare all three numbers with if/elif/else statements or return max(a, b, c).';
+            improvements.push('Ensure you compare all three inputs: a, b, and c.');
+          }
+        } else if (activeProblem.id === 'prob_beg_4') {
+          if (!userCode.includes('for') && !userCode.includes('while') && !userCode.includes('sum')) {
+            score = 50;
+            verdict = 'INCOMPLETE';
+            feedback = 'Use a loop like "for i in range(1, n + 1):" to sum all numbers from 1 to n.';
+            improvements.push('Accumulate the sum inside a loop and return the total.');
+          }
+        } else if (activeProblem.id === 'prob_beg_5') {
+          if (!userCode.includes('for') && !userCode.includes('count')) {
+            score = 50;
+            verdict = 'INCOMPLETE';
+            feedback = 'Loop through the characters in word and count each character that is a vowel.';
+            improvements.push('Check each letter against "aeiouAEIOU".');
+          }
+        }
+
+        const evalData: AiAssessmentEvaluation = {
+          score,
+          verdict,
+          timeComplexity: activeProblem.expectedComplexity?.split(',')[0] || 'O(1)',
+          spaceComplexity: activeProblem.expectedComplexity?.split(',')[1] || 'O(1)',
+          strengths,
+          improvements: improvements.length > 0 ? improvements : ['Code is clean and ready! Try the next problem.'],
+          detailedFeedback: feedback,
+          suggestedSolution: activeProblem.starterCode,
+        };
+
+        setEvaluationResult(evalData);
+        recordAssessmentResult(score);
+        setIsEvaluating(false);
+        return;
+      }
+
+      // Advanced problems offline fallback
       const hasKeyLogic =
         userCode.includes('return') ||
         userCode.includes('def ') ||
@@ -401,7 +718,6 @@ Return a JSON response with this exact structure:
         score = 35;
         verdict = 'INCOMPLETE';
       } else if (userCode.includes('for ') && (userCode.match(/for /g) || []).length >= 2) {
-        // Nested loop heuristic
         score = 72;
         verdict = 'NEEDS_OPTIMIZATION';
         timeComp = 'O(N²) (Nested Iteration)';
@@ -413,25 +729,25 @@ Return a JSON response with this exact structure:
         timeComplexity: timeComp,
         spaceComplexity: spaceComp,
         strengths: [
-          'Correct algorithmic paradigm matching problem specification.',
-          'Appropriate data structure selection with minimal memory footprint.',
-          'Clean variable naming conventions adhering to engineering standards.',
+          'Algorithmic paradigm matches problem specifications.',
+          'Appropriate data structures selected.',
+          'Clean variable naming conventions.',
         ],
         improvements: [
-          'Verify edge cases involving boundary constraints ($N=0$, extreme values).',
-          'Add type annotations or docstrings for production readiness.',
+          'Consider boundary constraints (empty input, extreme values).',
+          'Add documentation or type annotations for production readiness.',
         ],
         detailedFeedback:
           score >= 85
-            ? `Excellent implementation! Your solution achieves the target asymptotic complexity of ${timeComp} and cleanly satisfies the design invariants. You demonstrated strong understanding of ${activeProblem.track} fundamentals.`
-            : `Your code establishes foundational logic, but exceeds the optimal asymptotic complexity threshold. Consider restructuring nested operations using hash lookups or pointer intervals.`,
+            ? `Excellent implementation! Your solution achieves the target complexity of ${timeComp} and satisfies problem invariants.`
+            : `Your code establishes foundational logic, but exceeds optimal complexity. Consider restructuring with hash maps or sliding intervals.`,
         suggestedSolution: activeProblem.starterCode,
       };
 
       setEvaluationResult(evalData);
       recordAssessmentResult(score);
       setIsEvaluating(false);
-    }, 700);
+    }, 500);
   };
 
   const recordAssessmentResult = (score: number) => {
@@ -442,27 +758,20 @@ Return a JSON response with this exact structure:
       completedAt: Date.now(),
       domain: activeProblem.track,
       difficulty: activeProblem.difficulty,
-      timeSpentSec: 90,
+      timeSpentSec: 60,
       weakTopics: score < 70 ? [activeProblem.track] : [],
     });
-  };
-
-  // Generate New AI Problem
-  const handleGenerateNewProblem = () => {
-    alert(`Generating new adaptive problem for track '${selectedTrack}' and language '${selectedLang.toUpperCase()}'...`);
-    // Switch to next problem in list
-    setSelectedProblemIndex((prev) => (prev + 1) % 4);
   };
 
   return (
     <div
       id="assessment-lab-root"
-      className="h-full w-full flex flex-col bg-[#07090e] text-zinc-100 select-none overflow-hidden"
+      className="h-full w-full flex flex-col bg-[#07090e] text-zinc-100 select-none overflow-hidden font-sans"
     >
       {/* Top Header & Mode Switcher */}
       <header
         id="assessment-toolbar"
-        className="min-h-[3.75rem] h-auto py-2.5 bg-[#0c1017] border-b border-zinc-800 px-4 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-20"
+        className="min-h-[3.75rem] h-auto py-2.5 bg-[#0b0f17] border-b border-zinc-800 px-4 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-20"
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-purple-950/80 border border-purple-500/40 flex items-center justify-center text-purple-400 shrink-0 shadow-[0_0_12px_rgba(168,85,247,0.3)]">
@@ -471,14 +780,14 @@ Return a JSON response with this exact structure:
           <div>
             <div className="flex items-center gap-2">
               <span className="font-tech text-xs font-bold text-zinc-200 tracking-wide">
-                TITAN ASSESSMENT & INTERVIEW TERMINAL
+                PRACTICE & SKILL ASSESSMENTS
               </span>
-              <span className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800 text-[10px] font-mono text-purple-400 font-bold">
-                AI EVALUATOR PRIMED
+              <span className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800 text-[10px] font-mono text-purple-300 font-bold">
+                AI EVALUATOR READY
               </span>
             </div>
             <span className="block text-[10px] font-mono text-zinc-400">
-              DSA • OOP Systems • Technical Interviews • AI Code Complexity Analysis
+              Interactive challenges for beginners • Advanced systems algorithms • Instant feedback
             </span>
           </div>
         </div>
@@ -488,74 +797,129 @@ Return a JSON response with this exact structure:
           <button
             type="button"
             onClick={() => setAssessmentMode('ai_coding')}
-            className={`px-3 py-1.5 rounded cursor-pointer transition-all font-semibold ${
+            className={`px-3 py-1.5 rounded cursor-pointer transition-all font-semibold flex items-center gap-1.5 ${
               assessmentMode === 'ai_coding'
                 ? 'bg-purple-600 text-white font-bold shadow-[0_0_12px_rgba(168,85,247,0.5)]'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            AI Coding & Interview
+            <Code2 className="w-3.5 h-3.5" />
+            <span>Interactive Coding</span>
           </button>
 
           <button
             type="button"
             onClick={() => setAssessmentMode('mcq')}
-            className={`px-3 py-1.5 rounded cursor-pointer transition-all font-semibold ${
+            className={`px-3 py-1.5 rounded cursor-pointer transition-all font-semibold flex items-center gap-1.5 ${
               assessmentMode === 'mcq'
                 ? 'bg-cyan-500 text-black font-bold shadow-[0_0_12px_rgba(6,182,212,0.5)]'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            Core Concepts Exam
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Concept Quizzes</span>
           </button>
         </div>
       </header>
 
-      {/* MODE 1: AI CODING & INTERVIEW EVALUATOR */}
+      {/* MODE 1: INTERACTIVE CODING CHALLENGES */}
       {assessmentMode === 'ai_coding' && (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          {/* Left Column: Track & Problem Specs */}
+          {/* Left Column: Level, Track & Problem Description */}
           <div className="w-full lg:w-5/12 bg-[#090d14] border-b lg:border-b-0 lg:border-r border-zinc-800 flex flex-col overflow-hidden">
-            {/* Track & Language Selector */}
+            {/* Level & Track Selector */}
             <div className="p-3 border-b border-zinc-800 bg-[#0c1017] flex flex-col gap-2.5 shrink-0 font-mono text-xs">
+              {/* Level Tab Toggle: Beginner vs Advanced */}
               <div className="flex items-center justify-between">
-                <span className="text-slate-400 font-bold uppercase text-[11px]">Select Domain Track:</span>
-                <button
-                  type="button"
-                  onClick={handleGenerateNewProblem}
-                  className="text-cyan-400 hover:text-cyan-300 text-[10px] flex items-center gap-1 bg-cyan-950/40 border border-cyan-800/60 px-2 py-0.5 rounded cursor-pointer"
-                >
-                  <Sparkles className="w-3 h-3 text-amber-400" />
-                  <span>Generate New Problem</span>
-                </button>
-              </div>
-
-              {/* Tracks Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                {(['DSA', 'OOP', 'System Design', 'Interview'] as const).map((track) => (
+                <span className="text-slate-400 font-bold uppercase text-[11px]">Skill Level:</span>
+                <div className="flex items-center gap-1 bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
                   <button
-                    key={track}
                     type="button"
                     onClick={() => {
-                      setSelectedTrack(track);
+                      setLevelTab('beginner');
+                      setSelectedTrack('Beginner');
                       setSelectedProblemIndex(0);
                     }}
-                    className={`p-1.5 rounded text-[11px] font-bold text-center transition-all cursor-pointer truncate ${
-                      selectedTrack === track
-                        ? 'bg-purple-600/30 border border-purple-500 text-purple-300 shadow-[0_0_8px_rgba(168,85,247,0.3)]'
-                        : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all cursor-pointer ${
+                      levelTab === 'beginner'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-zinc-400 hover:text-white'
                     }`}
                   >
-                    {track}
+                    🌱 Beginner
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLevelTab('advanced');
+                      setSelectedTrack('DSA');
+                      setSelectedProblemIndex(0);
+                    }}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all cursor-pointer ${
+                      levelTab === 'advanced'
+                        ? 'bg-cyan-600 text-white shadow-sm'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    ⚡ Advanced
+                  </button>
+                </div>
               </div>
 
+              {/* Problems list / Track switcher */}
+              {levelTab === 'beginner' ? (
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold">Beginner Challenges:</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    {BEGINNER_PROBLEMS.map((prob, idx) => (
+                      <button
+                        key={prob.id}
+                        type="button"
+                        onClick={() => setSelectedProblemIndex(idx)}
+                        className={`p-1.5 px-2 rounded text-[11px] font-semibold text-left transition-all cursor-pointer truncate flex items-center gap-1.5 border ${
+                          selectedProblemIndex === idx
+                            ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
+                            : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                        }`}
+                      >
+                        <span className="w-4 h-4 rounded-full bg-emerald-900/80 text-[10px] flex items-center justify-center font-bold text-emerald-400 shrink-0">
+                          {idx + 1}
+                        </span>
+                        <span className="truncate">{prob.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold">Advanced Tracks:</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                    {(['DSA', 'OOP', 'System Design', 'Interview'] as const).map((track) => (
+                      <button
+                        key={track}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTrack(track);
+                          setSelectedProblemIndex(0);
+                        }}
+                        className={`p-1.5 rounded text-[11px] font-bold text-center transition-all cursor-pointer truncate ${
+                          selectedTrack === track
+                            ? 'bg-purple-600/40 border border-purple-500 text-purple-300 shadow-[0_0_8px_rgba(168,85,247,0.3)]'
+                            : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                        }`}
+                      >
+                        {track}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Language Selection Bar */}
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center justify-between pt-1 border-t border-zinc-800/80">
                 <span className="text-[11px] text-slate-400">Language:</span>
                 <div className="flex items-center gap-1">
-                  {(['python', 'javascript', 'java', 'cpp', 'sql'] as const).map((lang) => (
+                  {(['python', 'javascript', 'java', 'cpp'] as const).map((lang) => (
                     <button
                       key={lang}
                       type="button"
@@ -592,12 +956,26 @@ Return a JSON response with this exact structure:
                 </span>
               </div>
 
-              <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                {activeProblem.description}
+              {/* View Mode Toggle: Simple vs Detailed */}
+              <div className="flex items-center justify-between text-[11px] text-slate-400 bg-zinc-900/60 p-2 rounded-lg border border-zinc-800/80">
+                <span>Problem View:</span>
+                <button
+                  type="button"
+                  onClick={() => setShowDetailedSpecs(!showDetailedSpecs)}
+                  className="text-cyan-400 hover:underline font-semibold cursor-pointer"
+                >
+                  {showDetailedSpecs ? 'Show Simple Summary' : 'Show Detailed Specs'}
+                </button>
               </div>
 
-              {/* Expected Target Complexity Box */}
-              {activeProblem.expectedComplexity && (
+              <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-xs">
+                {showDetailedSpecs
+                  ? activeProblem.description
+                  : activeProblem.description.split('**Constraints:**')[0]}
+              </div>
+
+              {/* Expected Complexity (in detailed view or advanced) */}
+              {showDetailedSpecs && activeProblem.expectedComplexity && (
                 <div className="p-3 rounded-lg bg-cyan-950/20 border border-cyan-800/60 text-cyan-300 text-[11px] flex items-center justify-between">
                   <span className="font-bold flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-cyan-400" />
@@ -607,20 +985,32 @@ Return a JSON response with this exact structure:
                 </div>
               )}
 
-              {/* Hints */}
-              <div className="flex flex-col gap-2 pt-2">
-                <span className="text-slate-400 font-bold uppercase text-[11px] flex items-center gap-1">
-                  <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-                  Engineering Hints:
-                </span>
-                {activeProblem.hints.map((hint, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2.5 rounded bg-zinc-900/60 border border-zinc-800/80 text-[11px] text-zinc-400 leading-relaxed"
-                  >
-                    {idx + 1}. {hint}
+              {/* Collapsible Hints */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowHints(!showHints)}
+                  className="w-full py-2 px-3 rounded-lg bg-amber-950/20 hover:bg-amber-950/40 border border-amber-800/50 text-amber-300 font-semibold text-xs flex items-center justify-between cursor-pointer transition-colors"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                    {showHints ? 'Hide Hints' : '💡 Need a Hint? Click to Reveal'}
+                  </span>
+                  <span className="text-[10px] text-amber-400">{showHints ? '▲' : '▼'}</span>
+                </button>
+
+                {showHints && (
+                  <div className="mt-2 flex flex-col gap-2">
+                    {activeProblem.hints.map((hint, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded bg-zinc-900/80 border border-zinc-800 text-[11px] text-zinc-300 leading-relaxed"
+                      >
+                        <strong>Hint {idx + 1}:</strong> {hint}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -644,7 +1034,7 @@ Return a JSON response with this exact structure:
                 className="px-4 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white font-tech font-bold text-xs flex items-center gap-1.5 shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all cursor-pointer disabled:opacity-50"
               >
                 <Sparkles className="w-3.5 h-3.5 fill-current" />
-                <span>{isEvaluating ? 'ANALYZING WITH AI...' : 'SUBMIT FOR AI EVALUATION'}</span>
+                <span>{isEvaluating ? 'CHECKING CODE...' : 'RUN & CHECK WITH AI TUTOR'}</span>
               </button>
             </div>
 
@@ -662,7 +1052,7 @@ Return a JSON response with this exact structure:
                 value={userCode}
                 onChange={(e) => setUserCode(e.target.value)}
                 spellCheck={false}
-                placeholder="Write your solution here..."
+                placeholder="Write your code solution here..."
                 className="flex-1 p-3 bg-transparent text-zinc-100 font-mono text-xs leading-relaxed focus:outline-none resize-none overflow-auto whitespace-pre"
               />
             </div>
@@ -672,7 +1062,7 @@ Return a JSON response with this exact structure:
               <div className="h-8 bg-[#0d111a] border-b border-zinc-800 px-3 flex items-center justify-between text-[11px] font-mono text-zinc-400 shrink-0">
                 <span className="font-bold text-slate-300 uppercase flex items-center gap-1.5">
                   <Brain className="w-3.5 h-3.5 text-purple-400" />
-                  AI CODE VERDICT & ARCHITECTURAL REVIEW
+                  EVALUATION & TUTOR FEEDBACK
                 </span>
                 {evaluationResult && (
                   <span
@@ -691,30 +1081,32 @@ Return a JSON response with this exact structure:
 
               <div className="flex-1 overflow-y-auto p-4 font-mono text-xs space-y-3 select-text">
                 {!evaluationResult ? (
-                  <div className="h-full flex flex-col items-center justify-center text-zinc-500 gap-2">
-                    <Sparkles className="w-8 h-8 opacity-40 text-purple-400" />
-                    <span>Click "SUBMIT FOR AI EVALUATION" to analyze complexity, bugs, and edge cases.</span>
+                  <div className="h-full flex flex-col items-center justify-center text-zinc-400 gap-2 text-center p-4">
+                    <Sparkles className="w-8 h-8 opacity-50 text-purple-400" />
+                    <span className="text-xs">Click <strong>"RUN & CHECK WITH AI TUTOR"</strong> above to test your code.</span>
+                    <span className="text-[11px] text-zinc-500 max-w-sm">
+                      Our tutor will inspect your code logic, check for errors, and provide friendly step-by-step guidance!
+                    </span>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {/* Complexity Badges */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-lg bg-[#06080e] border border-zinc-800 flex flex-col gap-1">
-                        <span className="text-[10px] text-zinc-500 uppercase font-bold">
-                          Assessed Time Complexity
-                        </span>
-                        <span className="text-sm font-bold text-cyan-400">
-                          {evaluationResult.timeComplexity}
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg bg-[#06080e] border border-zinc-800 flex flex-col gap-1">
-                        <span className="text-[10px] text-zinc-500 uppercase font-bold">
-                          Assessed Space Complexity
-                        </span>
-                        <span className="text-sm font-bold text-purple-400">
-                          {evaluationResult.spaceComplexity}
-                        </span>
-                      </div>
+                    {/* Verdict Banner */}
+                    <div
+                      className={`p-3 rounded-lg border flex items-center justify-between ${
+                        evaluationResult.verdict === 'ACCEPTED'
+                          ? 'bg-emerald-950/30 border-emerald-500/50 text-emerald-300'
+                          : 'bg-amber-950/30 border-amber-500/50 text-amber-300'
+                      }`}
+                    >
+                      <span className="font-bold flex items-center gap-2">
+                        {evaluationResult.verdict === 'ACCEPTED' ? (
+                          <Check className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <AlertTriangle className="w-4 h-4 text-amber-400" />
+                        )}
+                        VERDICT: {evaluationResult.verdict === 'ACCEPTED' ? 'PASSED 🎉' : 'NEEDS ADJUSTMENT'}
+                      </span>
+                      <span className="font-bold text-sm">Score: {evaluationResult.score}/100</span>
                     </div>
 
                     {/* Feedback paragraph */}
@@ -726,7 +1118,7 @@ Return a JSON response with this exact structure:
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-800/50 flex flex-col gap-1.5">
                         <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5" /> Strengths
+                          <Check className="w-3.5 h-3.5" /> What worked well:
                         </span>
                         {evaluationResult.strengths.map((s, idx) => (
                           <span key={idx} className="text-[11px] text-zinc-300">
@@ -737,7 +1129,7 @@ Return a JSON response with this exact structure:
 
                       <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-800/50 flex flex-col gap-1.5">
                         <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5" /> Areas to Optimize
+                          <AlertTriangle className="w-3.5 h-3.5" /> How to improve:
                         </span>
                         {evaluationResult.improvements.map((imp, idx) => (
                           <span key={idx} className="text-[11px] text-zinc-300">
@@ -754,13 +1146,39 @@ Return a JSON response with this exact structure:
         </div>
       )}
 
-      {/* MODE 2: MULTIPLE CHOICE CONCEPT EXAM */}
+      {/* MODE 2: CONCEPT QUIZZES (MCQ) */}
       {assessmentMode === 'mcq' && (
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-3xl mx-auto w-full flex flex-col gap-4">
+          {/* Quiz Track Switcher */}
           <div className="flex items-center justify-between bg-[#0c1017] border border-zinc-800 p-3 rounded-xl">
-            <span className="font-mono text-xs text-zinc-300">
-              Question {mcqIndex + 1} of {MCQ_QUESTIONS.length}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-zinc-400 font-bold">Quiz Track:</span>
+              <div className="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setMcqTrack('beginner')}
+                  className={`px-3 py-1 rounded text-xs font-semibold cursor-pointer transition-all ${
+                    mcqTrack === 'beginner'
+                      ? 'bg-emerald-600 text-white font-bold shadow-sm'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  🌱 Beginner Basics
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMcqTrack('advanced')}
+                  className={`px-3 py-1 rounded text-xs font-semibold cursor-pointer transition-all ${
+                    mcqTrack === 'advanced'
+                      ? 'bg-cyan-600 text-white font-bold shadow-sm'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  ⚡ Engineering Core
+                </button>
+              </div>
+            </div>
+
             <div className="flex items-center gap-3">
               <span className="text-xs font-mono text-cyan-400 flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
@@ -770,32 +1188,37 @@ Return a JSON response with this exact structure:
                 <button
                   type="button"
                   onClick={handleMcqSubmit}
-                  className="px-3 py-1 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-tech font-bold text-xs"
+                  className="px-3 py-1 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-tech font-bold text-xs cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.3)]"
                 >
-                  Submit Exam
+                  Submit Quiz
                 </button>
               )}
             </div>
           </div>
 
-          <div className="p-5 rounded-xl bg-[#0c1017] border border-zinc-800 flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-mono font-bold text-cyan-400">
-                {MCQ_QUESTIONS[mcqIndex].category}
+          {/* Question Card */}
+          <div className="p-5 sm:p-6 rounded-xl bg-[#0c1017] border border-zinc-800 flex flex-col gap-4 shadow-xl">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <span className="font-mono text-xs text-zinc-400">
+                Question {mcqIndex + 1} of {activeMCQs.length}
               </span>
-              <h4 className="font-tech text-sm font-bold text-zinc-100">
-                {MCQ_QUESTIONS[mcqIndex].prompt}
-              </h4>
+              <span className="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-mono font-bold text-cyan-400">
+                {activeMCQs[mcqIndex].category}
+              </span>
             </div>
 
-            <div className="flex flex-col gap-2 font-mono text-xs">
-              {MCQ_QUESTIONS[mcqIndex].options.map((opt, oIdx) => {
-                const isSelected = mcqAnswers[MCQ_QUESTIONS[mcqIndex].id] === oIdx;
-                const isCorrect = MCQ_QUESTIONS[mcqIndex].correctIndex === oIdx;
+            <h4 className="font-tech text-base font-bold text-zinc-100 leading-snug">
+              {activeMCQs[mcqIndex].prompt}
+            </h4>
 
-                let btnStyle = 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700';
+            <div className="flex flex-col gap-2 font-mono text-xs pt-1">
+              {activeMCQs[mcqIndex].options.map((opt, oIdx) => {
+                const isSelected = mcqAnswers[activeMCQs[mcqIndex].id] === oIdx;
+                const isCorrect = activeMCQs[mcqIndex].correctIndex === oIdx;
+
+                let btnStyle = 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:border-zinc-700';
                 if (isSelected) {
-                  btnStyle = 'bg-cyan-950 border-cyan-500 text-cyan-300 font-bold';
+                  btnStyle = 'bg-cyan-950 border-cyan-500 text-cyan-300 font-bold shadow-[0_0_8px_rgba(6,182,212,0.25)]';
                 }
                 if (mcqSubmitted) {
                   if (isCorrect) btnStyle = 'bg-emerald-950 border-emerald-500 text-emerald-300 font-bold';
@@ -810,40 +1233,41 @@ Return a JSON response with this exact structure:
                       if (!mcqSubmitted) {
                         setMcqAnswers((prev) => ({
                           ...prev,
-                          [MCQ_QUESTIONS[mcqIndex].id]: oIdx,
+                          [activeMCQs[mcqIndex].id]: oIdx,
                         }));
                       }
                     }}
                     className={`p-3 rounded-lg border text-left flex items-center justify-between transition-all cursor-pointer ${btnStyle}`}
                   >
                     <span>{opt}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5" />}
+                    {isSelected && <Check className="w-4 h-4 text-cyan-400" />}
                   </button>
                 );
               })}
             </div>
 
             {mcqSubmitted && (
-              <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-300">
+              <div className="p-3.5 rounded-lg bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-zinc-300 leading-relaxed">
                 <strong className="text-cyan-400">Explanation: </strong>
-                {MCQ_QUESTIONS[mcqIndex].explanation}
+                {activeMCQs[mcqIndex].explanation}
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-3 border-t border-zinc-800">
+            <div className="flex justify-between items-center pt-4 border-t border-zinc-800">
               <button
                 type="button"
                 disabled={mcqIndex === 0}
                 onClick={() => setMcqIndex((prev) => Math.max(0, prev - 1))}
-                className="px-3 py-1.5 rounded bg-zinc-800 text-zinc-300 disabled:opacity-40"
+                className="px-3.5 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 disabled:opacity-40 cursor-pointer text-xs"
               >
                 Previous
               </button>
+
               <button
                 type="button"
-                disabled={mcqIndex === MCQ_QUESTIONS.length - 1}
-                onClick={() => setMcqIndex((prev) => Math.min(MCQ_QUESTIONS.length - 1, prev + 1))}
-                className="px-3 py-1.5 rounded bg-zinc-800 text-zinc-300 disabled:opacity-40"
+                disabled={mcqIndex === activeMCQs.length - 1}
+                onClick={() => setMcqIndex((prev) => Math.min(activeMCQs.length - 1, prev + 1))}
+                className="px-3.5 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 disabled:opacity-40 cursor-pointer text-xs"
               >
                 Next
               </button>

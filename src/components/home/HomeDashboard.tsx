@@ -23,6 +23,11 @@ import {
   Zap,
   Bot,
   Cloud,
+  BookOpen,
+  HelpCircle,
+  Compass,
+  Play,
+  Lightbulb,
 } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from '../common/BrandIcons';
 import { ModuleId, UserProgress, SavedProgram, UserProfile } from '../../types';
@@ -178,8 +183,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 ENGINEERING WORKSTATION
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 font-mono leading-relaxed max-w-xl">
-              The high-performance operating environment for elite software engineers, systems architects, and technical problem solvers.
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 font-mono leading-relaxed max-w-xl">
+              The interactive computer science & coding workstation built for beginners learning to code and programmers mastering software engineering.
             </p>
           </div>
         </div>
@@ -200,11 +205,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           <div className="flex flex-col font-mono">
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-white tracking-wide">{profile.name}</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded bg-purple-950 border border-purple-800 text-purple-300 font-bold">
-                PRO
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-950 border border-cyan-800 text-cyan-300 font-bold">
+                STUDENT & PRO
               </span>
             </div>
-            <span className="text-[10px] text-cyan-400 font-semibold">{profile.title || 'Senior Systems Engineer'}</span>
+            <span className="text-[10px] text-cyan-400 font-semibold">{profile.title || 'Software Engineering Learner'}</span>
             <span className="text-[10px] text-slate-400 truncate max-w-[180px]">{profile.email}</span>
 
             <button
@@ -218,7 +223,138 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         </div>
       </section>
 
-      {/* 2. 1-CLICK CLOUD DEPLOY & PROJECT UPLOAD HUB */}
+      {/* 2. BEGINNER QUICK START / START YOUR JOURNEY */}
+      <section className="bg-gradient-to-r from-[#0c1424] via-[#0e172a] to-[#0c1424] border border-cyan-500/30 rounded-2xl p-5 shadow-lg flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-base">
+              🌱
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-white tracking-wide font-tech flex items-center gap-2">
+                BEGINNER QUICK START — NEW TO CODING? START HERE!
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 font-mono font-normal">
+                  Zero Setup Needed
+                </span>
+              </h2>
+              <p className="text-xs text-slate-400 font-mono mt-0.5">
+                Simple, step-by-step interactive tools to learn code, watch logic in action, and get friendly AI help.
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 border border-cyan-800/80 px-2.5 py-1 rounded self-start sm:self-auto font-semibold">
+            Recommended Beginner Path ↓
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Card 1: CodeLab */}
+          <div
+            onClick={() => onNavigate('codelab')}
+            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-cyan-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-mono font-bold text-cyan-400">STEP 1</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono">CODE RUNNER</span>
+              </div>
+              <h3 className="font-tech text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                Write & Run First Code
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                Run simple Python, JavaScript, or Java in your browser with instant output. No installation or setup needed!
+              </p>
+            </div>
+            <button
+              type="button"
+              className="w-full py-1.5 rounded bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-cyan-500/30 group-hover:border-transparent cursor-pointer"
+            >
+              <span>Open Code Runner</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          {/* Card 2: Algorithms Visualizer */}
+          <div
+            onClick={() => onNavigate('dsa')}
+            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-emerald-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-mono font-bold text-emerald-400">STEP 2</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono">VISUALIZER</span>
+              </div>
+              <h3 className="font-tech text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
+                Watch Code Visually
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                See how sorting, arrays, and loops work step-by-step with live visual animations and simple explanations.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="w-full py-1.5 rounded bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-emerald-500/30 group-hover:border-transparent cursor-pointer"
+            >
+              <span>Explore Visualizer</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          {/* Card 3: AI Tutor */}
+          <div
+            onClick={() => onNavigate('ai')}
+            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-purple-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-mono font-bold text-purple-400">STEP 3</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 font-mono">SMART TUTOR</span>
+              </div>
+              <h3 className="font-tech text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                Ask the AI Tutor
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                Confused by an error or concept? Ask in plain English. Get beginner-friendly analogies and instant fixes.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="w-full py-1.5 rounded bg-purple-500/10 hover:bg-purple-500 text-purple-400 hover:text-white font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-purple-500/30 group-hover:border-transparent cursor-pointer"
+            >
+              <span>Chat with AI Tutor</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          {/* Card 4: Assessment / Quizzes */}
+          <div
+            onClick={() => onNavigate('assessment')}
+            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-amber-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-mono font-bold text-amber-400">STEP 4</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 font-mono">FUN QUIZ</span>
+              </div>
+              <h3 className="font-tech text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
+                Test Your Knowledge
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                Try a quick beginner multiple-choice quiz or write simple beginner code (Hello World, Even/Odd, Maximum).
+              </p>
+            </div>
+            <button
+              type="button"
+              className="w-full py-1.5 rounded bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-black font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-amber-500/30 group-hover:border-transparent cursor-pointer"
+            >
+              <span>Try Beginner Quiz</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. 1-CLICK CLOUD DEPLOY & PROJECT UPLOAD HUB */}
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -294,7 +430,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               rel="noopener noreferrer"
               className="px-2.5 py-1 rounded bg-purple-950 hover:bg-purple-900 border border-purple-700 text-purple-300 text-[11px] flex items-center gap-1"
             >
-              <Github className="w-3 h-3" />
+              <GithubIcon className="w-3 h-3" />
               <span>View Repo</span>
             </a>
           </div>
@@ -405,7 +541,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">DBMS SQL Workbench</h4>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  In-memory relational engine with interactive schema navigator, multi-table JOINs, and GROUP BY execution.
+                  Interactive SQL sandbox: write queries, inspect tables, run JOINs, and practice databases visually.
                 </p>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
@@ -429,16 +565,17 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
                     <Code2 className="w-4 h-4" />
                   </div>
-                  <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">Polyglot IDE & Compilers</h4>
+                  <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">CodeLab Editor & Runner</h4>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  Full virtual file & folder explorer, file import/upload engine, and execution tracing for Python, Java, and JS.
+                  Write, run, and debug Python, JavaScript, and Java programs in your browser with instant console output.
                 </p>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
                 <div className="flex gap-1.5">
-                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">FILE IMPORT</span>
-                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">EXPLORER</span>
+                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">PYTHON</span>
+                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">JS</span>
+                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">JAVA</span>
                 </div>
                 <span className="text-[9px] terminal-font text-purple-400 font-bold">LAUNCH IDE</span>
               </div>
@@ -458,7 +595,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">Digital Logic Lab</h4>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  Design gate-level circuits, route pin connections, and observe live boolean signal propagation.
+                  Build and test logic circuits with interactive switches, gates (AND, OR, NOT, XOR), and live signals.
                 </p>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
@@ -485,7 +622,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">Algorithms & DSA Lab</h4>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  Step-by-step visual execution of sorting, binary search, Dijkstra, and BFS/DFS graph traversals.
+                  Step-by-step visual animations of sorting (Bubble, Merge), binary search, and graph traversal (BFS, DFS).
                 </p>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">

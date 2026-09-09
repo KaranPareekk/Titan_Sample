@@ -317,7 +317,7 @@ export const CodeLab: React.FC = () => {
   const handleCreateNewFile = () => {
     if (!newFileName.trim()) return;
     let finalName = newFileName.trim();
-    let detectedLang = newFileLang;
+    let detectedLang: CodeFile['language'] = newFileLang;
 
     if (finalName.endsWith('.py')) detectedLang = 'python';
     else if (finalName.endsWith('.java')) detectedLang = 'java';

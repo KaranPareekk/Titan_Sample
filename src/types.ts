@@ -197,7 +197,7 @@ export interface AiChatMessage {
 // AI Assessment Problem
 export interface AiAssessmentProblem {
   id: string;
-  track: 'DSA' | 'OOP' | 'System Design' | 'Interview';
+  track: 'Beginner' | 'DSA' | 'OOP' | 'System Design' | 'Interview';
   title: string;
   difficulty: 'easy' | 'medium' | 'hard';
   language: 'python' | 'javascript' | 'java' | 'cpp' | 'sql';
