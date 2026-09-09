@@ -16,8 +16,6 @@ import {
   ExternalLink,
   Upload,
   Globe,
-  Github,
-  Linkedin,
   Copy,
   Check,
   Newspaper,
@@ -26,6 +24,7 @@ import {
   Bot,
   Cloud,
 } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from '../common/BrandIcons';
 import { ModuleId, UserProgress, SavedProgram, UserProfile } from '../../types';
 import { StorageService } from '../../services/storage';
 import { TitanLogo } from '../common/TitanLogo';
@@ -607,7 +606,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-lg bg-[#0a0f1d] border border-slate-800 hover:border-slate-600 flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
               >
-                <Github className="w-4 h-4 text-slate-400" />
+                <GithubIcon className="w-4 h-4 text-slate-400" />
                 <div className="flex flex-col truncate">
                   <span className="text-[10px] text-slate-500">GitHub</span>
                   <span className="truncate text-[11px] font-semibold">
@@ -622,7 +621,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-lg bg-[#0a0f1d] border border-slate-800 hover:border-blue-500/50 flex items-center gap-2 text-slate-300 hover:text-blue-300 transition-colors"
               >
-                <Linkedin className="w-4 h-4 text-blue-400" />
+                <LinkedinIcon className="w-4 h-4 text-blue-400" />
                 <div className="flex flex-col truncate">
                   <span className="text-[10px] text-slate-500">LinkedIn</span>
                   <span className="truncate text-[11px] font-semibold">Connected</span>

@@ -5,14 +5,13 @@ import {
   Upload,
   Check,
   Globe,
-  Github,
-  Linkedin,
   Code2,
   Sparkles,
   Shield,
   Calendar,
   ExternalLink,
 } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from '../common/BrandIcons';
 import { UserProfile } from '../../types';
 import { StorageService } from '../../services/storage';
 
@@ -244,7 +243,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* GitHub */}
               <div className="flex items-center gap-2 bg-[#05070a] border border-zinc-800 rounded-lg px-2.5 py-1.5 focus-within:border-cyan-500">
-                <Github className="w-3.5 h-3.5 text-slate-400" />
+                <GithubIcon className="w-3.5 h-3.5 text-slate-400" />
                 <input
                   type="text"
                   value={profile.githubUrl || ''}
@@ -256,7 +255,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
               {/* LinkedIn */}
               <div className="flex items-center gap-2 bg-[#05070a] border border-zinc-800 rounded-lg px-2.5 py-1.5 focus-within:border-cyan-500">
-                <Linkedin className="w-3.5 h-3.5 text-blue-400" />
+                <LinkedinIcon className="w-3.5 h-3.5 text-blue-400" />
                 <input
                   type="text"
                   value={profile.linkedinUrl || ''}
