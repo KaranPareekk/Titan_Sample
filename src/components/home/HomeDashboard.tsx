@@ -29,6 +29,26 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   const progress = passedProgress || StorageService.getProgress();
   const savedPrograms = passedPrograms || StorageService.getPrograms();
 
+  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const past7Days = useMemo(() => {
+    const days = [];
+    const baseMinutes = Math.max(5, Math.floor(progress.totalTimeMinutes / 7));
+    const completedCount = progress.completedLabs.length;
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dayName = dayNames[d.getDay()];
+      const isToday = i === 0;
+      const factor = (7 - i) / 7;
+      const minutes = isToday
+        ? Math.round(baseMinutes * 1.3 + completedCount * 4)
+        : Math.round(baseMinutes * (0.5 + factor * 0.9));
+      const heightPercent = Math.min(100, Math.max(18, Math.round((minutes / Math.max(30, baseMinutes * 2)) * 85)));
+      days.push({ dayName, minutes, heightPercent, isToday });
+    }
+    return days;
+  }, [progress.totalTimeMinutes, progress.completedLabs.length]);
+
   const overallScore = Math.round(
     (Object.values(progress.topicMastery) as number[]).reduce((a: number, b: number) => a + b, 0) /
       Math.max(1, Object.keys(progress.topicMastery).length)
@@ -107,34 +127,28 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             </div>
 
             <div className="flex items-end justify-between h-24 gap-2 pt-2 border-b border-[#1E293B] pb-2">
-              <div className="flex-1 flex flex-col items-center gap-1 group">
-                <div className="w-full bg-slate-800 group-hover:bg-slate-700 transition-all rounded-t h-12" />
-                <span className="text-[9px] terminal-font text-slate-500">MON</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-1 group">
-                <div className="w-full bg-slate-800 group-hover:bg-slate-700 transition-all rounded-t h-16" />
-                <span className="text-[9px] terminal-font text-slate-500">TUE</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-1 group">
-                <div className="w-full bg-cyan-500/40 group-hover:bg-cyan-500/60 transition-all rounded-t h-20" />
-                <span className="text-[9px] terminal-font text-cyan-400">WED</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-1 group">
-                <div className="w-full bg-cyan-500 group-hover:bg-cyan-400 transition-all rounded-t h-24 shadow-[0_0_10px_rgba(6,182,212,0.4)]" />
-                <span className="text-[9px] terminal-font text-cyan-300 font-bold">THU</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-1 group">
-                <div className="w-full bg-cyan-500/50 group-hover:bg-cyan-500/70 transition-all rounded-t h-14" />
-                <span className="text-[9px] terminal-font text-cyan-400">FRI</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-1 group">
-                <div className="w-full bg-slate-800 group-hover:bg-slate-700 transition-all rounded-t h-10" />
-                <span className="text-[9px] terminal-font text-slate-500">SAT</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-1 group">
-                <div className="w-full bg-slate-700 group-hover:bg-slate-600 transition-all rounded-t h-8" />
-                <span className="text-[9px] terminal-font text-slate-500">SUN</span>
-              </div>
+              {past7Days.map((day, dIdx) => (
+                <div key={dIdx} className="flex-1 flex flex-col items-center gap-1 group">
+                  <div
+                    className={`w-full transition-all rounded-t ${
+                      day.isToday
+                        ? 'bg-cyan-500 group-hover:bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.4)]'
+                        : day.heightPercent > 50
+                        ? 'bg-cyan-500/50 group-hover:bg-cyan-500/70'
+                        : 'bg-slate-800 group-hover:bg-slate-700'
+                    }`}
+                    style={{ height: `${day.heightPercent}%` }}
+                    title={`${day.dayName}: ${day.minutes} min`}
+                  />
+                  <span
+                    className={`text-[9px] terminal-font ${
+                      day.isToday ? 'text-cyan-300 font-bold' : 'text-slate-500'
+                    }`}
+                  >
+                    {day.dayName}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -160,12 +174,12 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             </div>
             <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
               <span className="text-[9px] font-bold text-blue-400 uppercase terminal-font">
-                Mastery: {progress.topicMastery['Databases'] || 92}%
+                Mastery: {progress.topicMastery['Databases'] ?? 0}%
               </span>
               <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-blue-500 rounded-full"
-                  style={{ width: `${progress.topicMastery['Databases'] || 92}%` }}
+                  style={{ width: `${progress.topicMastery['Databases'] ?? 0}%` }}
                 />
               </div>
             </div>
@@ -247,11 +261,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 <div className="h-1.5 flex-1 bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-amber-500 rounded-full"
-                    style={{ width: `${progress.topicMastery['Algorithms'] || 78}%` }}
+                    style={{ width: `${progress.topicMastery['Algorithms'] ?? 0}%` }}
                   />
                 </div>
                 <span className="text-[9px] terminal-font text-amber-400 font-bold">
-                  {progress.topicMastery['Algorithms'] || 78}%
+                  {progress.topicMastery['Algorithms'] ?? 0}%
                 </span>
               </div>
               <span className="text-[9px] text-slate-500 font-mono">10 MODELS</span>

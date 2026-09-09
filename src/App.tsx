@@ -29,6 +29,29 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // Sync theme class to document.documentElement for Tailwind dark: variants
+  useEffect(() => {
+    const root = document.documentElement;
+    if (settings.theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+    }
+  }, [settings.theme]);
+
+  // Global key listener to exit Focus Mode on Escape
+  useEffect(() => {
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && settings.focusMode) {
+        handleUpdateSettings({ focusMode: false });
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKey);
+    return () => window.removeEventListener('keydown', handleGlobalKey);
+  }, [settings.focusMode]);
+
   const handleUpdateSettings = (newPartial: Partial<SystemSettings>) => {
     const updated = { ...settings, ...newPartial };
     setSettings(updated);

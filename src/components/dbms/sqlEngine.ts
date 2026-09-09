@@ -294,14 +294,37 @@ export class SqlEngine {
 
       // e.g. enrollments.student_id = students.id
       const [leftSide, rightSide] = joinOn.split('=').map((s) => s.trim());
-      const leftCol = leftSide.includes('.') ? leftSide.split('.')[1] : leftSide;
-      const rightCol = rightSide.includes('.') ? rightSide.split('.')[1] : rightSide;
+      const leftParts = leftSide.split('.');
+      const rightParts = rightSide.split('.');
+
+      const getVal = (row: Record<string, any>, tblName: string, parts: string[]) => {
+        if (parts.length > 1) {
+          if (parts[0].toLowerCase() === tblName) {
+            return row[parts[1]];
+          }
+          return undefined;
+        }
+        return row[parts[0]];
+      };
 
       const joined: Record<string, any>[] = [];
       for (const pRow of workingRows) {
         for (const jRow of jTable.rows) {
-          const pVal = pRow[leftCol] ?? pRow[rightCol];
-          const jVal = jRow[rightCol] ?? jRow[leftCol];
+          let pVal = getVal(pRow, primaryTable, leftParts);
+          let jVal = getVal(jRow, joinTable, rightParts);
+          if (pVal === undefined || jVal === undefined) {
+            // Check reverse
+            pVal = getVal(pRow, primaryTable, rightParts);
+            jVal = getVal(jRow, joinTable, leftParts);
+          }
+          if (pVal === undefined) {
+            const c = leftParts.length > 1 ? leftParts[1] : leftParts[0];
+            pVal = pRow[c];
+          }
+          if (jVal === undefined) {
+            const c = rightParts.length > 1 ? rightParts[1] : rightParts[0];
+            jVal = jRow[c];
+          }
           if (pVal !== undefined && jVal !== undefined && String(pVal) === String(jVal)) {
             joined.push({ ...pRow, ...jRow });
           }
@@ -317,44 +340,99 @@ export class SqlEngine {
 
     // Aggregate functions check: COUNT(*), COUNT(col), AVG(col), SUM(col), MIN(col), MAX(col)
     const upperCols = selectColsRaw.toUpperCase();
-    if (
+    const hasAgg =
       upperCols.includes('COUNT(') ||
       upperCols.includes('SUM(') ||
       upperCols.includes('AVG(') ||
       upperCols.includes('MIN(') ||
-      upperCols.includes('MAX(')
-    ) {
-      const aggResult: Record<string, any> = {};
-      const colTokens = selectColsRaw.split(',').map((s) => s.trim());
+      upperCols.includes('MAX(');
 
-      for (const token of colTokens) {
-        const uTok = token.toUpperCase();
-        if (uTok.startsWith('COUNT(')) {
-          aggResult[token] = workingRows.length;
-        } else if (uTok.startsWith('SUM(')) {
-          const col = token.substring(4, token.indexOf(')')).trim();
-          const sum = workingRows.reduce((acc, r) => acc + (Number(r[col]) || 0), 0);
-          aggResult[token] = sum;
-        } else if (uTok.startsWith('AVG(')) {
-          const col = token.substring(4, token.indexOf(')')).trim();
-          const sum = workingRows.reduce((acc, r) => acc + (Number(r[col]) || 0), 0);
-          aggResult[token] = workingRows.length > 0 ? (sum / workingRows.length).toFixed(2) : 0;
-        } else if (uTok.startsWith('MAX(')) {
-          const col = token.substring(4, token.indexOf(')')).trim();
-          const max = Math.max(...workingRows.map((r) => Number(r[col]) || 0));
-          aggResult[token] = max;
-        } else if (uTok.startsWith('MIN(')) {
-          const col = token.substring(4, token.indexOf(')')).trim();
-          const min = Math.min(...workingRows.map((r) => Number(r[col]) || 0));
-          aggResult[token] = min;
-        } else {
-          aggResult[token] = workingRows[0]?.[token] ?? null;
+    if (groupByClause || hasAgg) {
+      const colTokens = selectColsRaw.split(',').map((s) => s.trim());
+      const groupColNames = groupByClause
+        ? groupByClause.split(',').map((s) => {
+            const t = s.trim();
+            return t.includes('.') ? t.split('.')[1] : t;
+          })
+        : [];
+
+      // Group rows
+      const groups = new Map<string, Record<string, any>[]>();
+      if (groupColNames.length > 0) {
+        for (const r of workingRows) {
+          const key = groupColNames.map((c) => String(r[c] ?? '')).join(':::');
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key)!.push(r);
         }
+      } else {
+        groups.set('__ALL__', workingRows);
+      }
+
+      const computeAggForGroup = (rows: Record<string, any>[]): Record<string, any> => {
+        const rowResult: Record<string, any> = {};
+        for (const token of colTokens) {
+          const uTok = token.toUpperCase();
+          const cleanToken = token.includes('.') && !uTok.includes('(') ? token.split('.')[1] : token;
+          if (uTok.startsWith('COUNT(')) {
+            const inner = token.substring(token.indexOf('(') + 1, token.indexOf(')')).trim();
+            if (inner === '*' || inner === '1') {
+              rowResult[token] = rows.length;
+            } else {
+              const col = inner.includes('.') ? inner.split('.')[1] : inner;
+              rowResult[token] = rows.filter((r) => r[col] !== undefined && r[col] !== null).length;
+            }
+          } else if (uTok.startsWith('SUM(')) {
+            const colRaw = token.substring(4, token.indexOf(')')).trim();
+            const col = colRaw.includes('.') ? colRaw.split('.')[1] : colRaw;
+            rowResult[token] = rows.reduce((acc, r) => acc + (Number(r[col]) || 0), 0);
+          } else if (uTok.startsWith('AVG(')) {
+            const colRaw = token.substring(4, token.indexOf(')')).trim();
+            const col = colRaw.includes('.') ? colRaw.split('.')[1] : colRaw;
+            const sum = rows.reduce((acc, r) => acc + (Number(r[col]) || 0), 0);
+            rowResult[token] = rows.length > 0 ? Number((sum / rows.length).toFixed(2)) : 0;
+          } else if (uTok.startsWith('MAX(')) {
+            const colRaw = token.substring(4, token.indexOf(')')).trim();
+            const col = colRaw.includes('.') ? colRaw.split('.')[1] : colRaw;
+            rowResult[token] = rows.length > 0 ? Math.max(...rows.map((r) => Number(r[col]) || 0)) : null;
+          } else if (uTok.startsWith('MIN(')) {
+            const colRaw = token.substring(4, token.indexOf(')')).trim();
+            const col = colRaw.includes('.') ? colRaw.split('.')[1] : colRaw;
+            rowResult[token] = rows.length > 0 ? Math.min(...rows.map((r) => Number(r[col]) || 0)) : null;
+          } else {
+            // Grouping column or standard field
+            rowResult[token] = rows[0]?.[cleanToken] ?? rows[0]?.[token] ?? null;
+          }
+        }
+        return rowResult;
+      };
+
+      let groupedRows: Record<string, any>[] = [];
+      for (const rows of groups.values()) {
+        groupedRows.push(computeAggForGroup(rows));
+      }
+
+      // ORDER BY
+      if (orderByClause) {
+        const [col, dir] = orderByClause.trim().split(/\s+/);
+        const isDesc = dir && dir.toUpperCase() === 'DESC';
+        groupedRows.sort((a, b) => {
+          const valA = a[col];
+          const valB = b[col];
+          if (valA === valB) return 0;
+          if (valA > valB) return isDesc ? -1 : 1;
+          return isDesc ? 1 : -1;
+        });
+      }
+
+      // LIMIT
+      if (limitClause) {
+        const limitNum = parseInt(limitClause, 10);
+        if (!isNaN(limitNum)) groupedRows = groupedRows.slice(0, limitNum);
       }
 
       return {
-        columns: Object.keys(aggResult),
-        rows: [aggResult],
+        columns: colTokens,
+        rows: groupedRows,
       };
     }
 

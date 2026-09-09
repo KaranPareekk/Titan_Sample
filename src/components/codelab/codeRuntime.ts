@@ -186,12 +186,26 @@ export function runPython(code: string, stdinText: string): ExecutionResult {
         continue;
       }
 
-      // For loop: for i in range(n):
+      // For loop: for i in range(...):
       if (trimmed.startsWith('for ') && trimmed.includes(' in range(')) {
         const match = trimmed.match(/for\s+(\w+)\s+in\s+range\(([^)]+)\):/);
         if (match) {
           const iterVar = match[1];
-          const rangeCount = Number(evalExpr(match[2], vars, stdin));
+          const rawArgs = parseArgList(match[2]);
+          let start = 0;
+          let stop = 0;
+          let step = 1;
+
+          if (rawArgs.length === 1) {
+            stop = Number(evalExpr(rawArgs[0], vars, stdin));
+          } else if (rawArgs.length === 2) {
+            start = Number(evalExpr(rawArgs[0], vars, stdin));
+            stop = Number(evalExpr(rawArgs[1], vars, stdin));
+          } else if (rawArgs.length >= 3) {
+            start = Number(evalExpr(rawArgs[0], vars, stdin));
+            stop = Number(evalExpr(rawArgs[1], vars, stdin));
+            step = Number(evalExpr(rawArgs[2], vars, stdin)) || 1;
+          }
 
           // Collect body lines (indented lines following)
           const bodyLines: string[] = [];
@@ -201,10 +215,21 @@ export function runPython(code: string, stdinText: string): ExecutionResult {
             j++;
           }
 
-          for (let k = 0; k < rangeCount; k++) {
-            vars[iterVar] = k;
-            for (const bLine of bodyLines) {
-              executePythonStatement(bLine, vars, stdin, stdout);
+          if (!isNaN(start) && !isNaN(stop) && !isNaN(step) && step !== 0) {
+            if (step > 0) {
+              for (let k = start; k < stop; k += step) {
+                vars[iterVar] = k;
+                for (const bLine of bodyLines) {
+                  executePythonStatement(bLine, vars, stdin, stdout);
+                }
+              }
+            } else {
+              for (let k = start; k > stop; k += step) {
+                vars[iterVar] = k;
+                for (const bLine of bodyLines) {
+                  executePythonStatement(bLine, vars, stdin, stdout);
+                }
+              }
             }
           }
           i = j - 1;

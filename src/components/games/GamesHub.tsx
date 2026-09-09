@@ -139,13 +139,26 @@ const SnakeGame: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isPlaying || isGameOver) return;
-      if (e.key === 'ArrowUp' || e.key === 'w') {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        e.preventDefault();
         if (directionRef.current !== 'DOWN') setDirection('UP');
-      } else if (e.key === 'ArrowDown' || e.key === 's') {
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        e.preventDefault();
         if (directionRef.current !== 'UP') setDirection('DOWN');
-      } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
         if (directionRef.current !== 'RIGHT') setDirection('LEFT');
-      } else if (e.key === 'ArrowRight' || e.key === 'd') {
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
         if (directionRef.current !== 'LEFT') setDirection('RIGHT');
       }
     };
@@ -512,8 +525,11 @@ const TicTacToeGame: React.FC = () => {
             <div className="flex gap-1">
               <button
                 onClick={() => {
-                  setVsAi(true);
-                  handleResetBoard();
+                  if (!vsAi) {
+                    setVsAi(true);
+                    handleResetBoard();
+                    setScoreStats({ x: 0, o: 0, draws: 0 });
+                  }
                 }}
                 className={`px-2 py-0.5 rounded text-[10px] flex items-center gap-1 ${
                   vsAi ? 'bg-cyan-500 text-black font-bold' : 'bg-zinc-800 text-zinc-400'
@@ -524,8 +540,11 @@ const TicTacToeGame: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  setVsAi(false);
-                  handleResetBoard();
+                  if (vsAi) {
+                    setVsAi(false);
+                    handleResetBoard();
+                    setScoreStats({ x: 0, o: 0, draws: 0 });
+                  }
                 }}
                 className={`px-2 py-0.5 rounded text-[10px] flex items-center gap-1 ${
                   !vsAi ? 'bg-cyan-500 text-black font-bold' : 'bg-zinc-800 text-zinc-400'

@@ -290,16 +290,25 @@ export class StorageService {
     return this.getAssessmentAttempts();
   }
 
-  static saveAssessment(assessment: { score: number; totalQuestions: number; mode: string; completedAt: number }): void {
+  static saveAssessment(assessment: {
+    score: number;
+    totalQuestions: number;
+    mode: string;
+    completedAt: number;
+    domain?: string;
+    difficulty?: 'easy' | 'medium' | 'hard';
+    timeSpentSec?: number;
+    weakTopics?: string[];
+  }): void {
     this.saveAssessmentAttempt({
       id: `attempt_${Date.now()}`,
-      domain: 'Algorithms',
-      difficulty: 'medium',
+      domain: assessment.domain || 'Engineering Core',
+      difficulty: assessment.difficulty || 'medium',
       score: assessment.score,
       total: assessment.totalQuestions,
       timestamp: assessment.completedAt,
-      timeSpentSec: 60,
-      weakTopics: [],
+      timeSpentSec: assessment.timeSpentSec ?? 60,
+      weakTopics: assessment.weakTopics || [],
     });
   }
 

@@ -35,6 +35,10 @@ WHERE students.gpa >= 3.5;`,
     query: `SELECT COUNT(*), AVG(gpa), MAX(gpa), MIN(gpa) FROM students;`,
   },
   {
+    title: 'Group By & Aggregates (Major Analytics)',
+    query: `SELECT major, COUNT(*), AVG(gpa) FROM students GROUP BY major ORDER BY AVG(gpa) DESC;`,
+  },
+  {
     title: 'Update GPA & Query Filter',
     query: `UPDATE students SET gpa = 3.95 WHERE name = 'Bob Vance';
 SELECT * FROM students ORDER BY gpa DESC;`,

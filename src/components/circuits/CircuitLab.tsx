@@ -39,14 +39,14 @@ const GATE_SPECS: Record<
   { name: string; inputCount: number; evaluate: (inputs: boolean[]) => boolean }
 > = {
   INPUT: { name: 'INPUT SWITCH', inputCount: 0, evaluate: () => false },
-  OUTPUT: { name: 'OUTPUT LED', inputCount: 1, evaluate: (inps) => inps[0] || false },
-  AND: { name: 'AND GATE', inputCount: 2, evaluate: (inps) => (inps[0] || false) && (inps[1] || false) },
-  OR: { name: 'OR GATE', inputCount: 2, evaluate: (inps) => (inps[0] || false) || (inps[1] || false) },
-  NOT: { name: 'NOT GATE', inputCount: 1, evaluate: (inps) => !(inps[0] || false) },
-  XOR: { name: 'XOR GATE', inputCount: 2, evaluate: (inps) => !!((inps[0] || false) !== (inps[1] || false)) },
-  NAND: { name: 'NAND GATE', inputCount: 2, evaluate: (inps) => !((inps[0] || false) && (inps[1] || false)) },
-  NOR: { name: 'NOR GATE', inputCount: 2, evaluate: (inps) => !((inps[0] || false) || (inps[1] || false)) },
-  XNOR: { name: 'XNOR GATE', inputCount: 2, evaluate: (inps) => !!((inps[0] || false) === (inps[1] || false)) },
+  OUTPUT: { name: 'OUTPUT LED', inputCount: 1, evaluate: (inps) => Boolean(inps[0]) },
+  AND: { name: 'AND GATE', inputCount: 2, evaluate: (inps) => Boolean(inps[0]) && Boolean(inps[1]) },
+  OR: { name: 'OR GATE', inputCount: 2, evaluate: (inps) => Boolean(inps[0]) || Boolean(inps[1]) },
+  NOT: { name: 'NOT GATE', inputCount: 1, evaluate: (inps) => !Boolean(inps[0]) },
+  XOR: { name: 'XOR GATE', inputCount: 2, evaluate: (inps) => Boolean(inps[0]) !== Boolean(inps[1]) },
+  NAND: { name: 'NAND GATE', inputCount: 2, evaluate: (inps) => !(Boolean(inps[0]) && Boolean(inps[1])) },
+  NOR: { name: 'NOR GATE', inputCount: 2, evaluate: (inps) => !(Boolean(inps[0]) || Boolean(inps[1])) },
+  XNOR: { name: 'XNOR GATE', inputCount: 2, evaluate: (inps) => Boolean(inps[0]) === Boolean(inps[1]) },
 };
 
 export const CircuitLab: React.FC = () => {

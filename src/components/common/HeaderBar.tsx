@@ -104,15 +104,15 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           <button
             id="btn-toggle-focus-mode"
             onClick={() => onUpdateSettings({ focusMode: !settings.focusMode })}
-            title={settings.focusMode ? 'Exit Focus Mode (Show Rail)' : 'Enter Focus Mode (Hide Rail)'}
-            className={`ml-1 px-3 py-1 text-[10px] rounded font-bold uppercase transition-all flex items-center gap-1.5 ${
+            title={settings.focusMode ? 'Exit Focus Mode (Show Rail) - Press Esc' : 'Enter Focus Mode (Hide Rail)'}
+            className={`ml-1 px-2.5 py-1 text-[10px] rounded font-bold uppercase transition-all flex items-center gap-1.5 ${
               settings.focusMode
                 ? 'bg-cyan-500 text-black border border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
                 : 'bg-cyan-600/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-600/20'
             }`}
           >
             {settings.focusMode ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
-            <span>FOCUS MODE</span>
+            <span className="hidden xs:inline sm:inline">FOCUS MODE</span>
           </button>
         </div>
       </div>

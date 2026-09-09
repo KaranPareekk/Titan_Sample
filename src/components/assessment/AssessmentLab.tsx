@@ -83,18 +83,24 @@ export const AssessmentLab: React.FC = () => {
 
   // Timer in timed mode
   useEffect(() => {
-    if (mode === 'timed' && isTimerRunning && !isSubmitted && timeLeft > 0) {
+    if (mode === 'timed' && isTimerRunning && !isSubmitted) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            setIsSubmitted(true);
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
       return () => clearInterval(timer);
+    }
+  }, [mode, isTimerRunning, isSubmitted]);
+
+  // Auto-submit when time reaches 0
+  useEffect(() => {
+    if (mode === 'timed' && isTimerRunning && !isSubmitted && timeLeft === 0) {
+      handleSubmit();
     }
   }, [mode, isTimerRunning, isSubmitted, timeLeft]);
 
@@ -131,12 +137,25 @@ export const AssessmentLab: React.FC = () => {
 
     // Save assessment record to storage
     const finalScore = calculateScore();
-    const pct = Math.round((finalScore / QUESTIONS.length) * 100);
+    const weakTopics: string[] = [];
+    QUESTIONS.forEach((q, idx) => {
+      if (selectedAnswers[idx] !== q.correctIndex) {
+        if (!weakTopics.includes(q.category)) {
+          weakTopics.push(q.category);
+        }
+      }
+    });
+
+    const timeSpent = mode === 'timed' ? Math.max(1, 180 - timeLeft) : 60;
+
     StorageService.saveAssessment({
       score: finalScore,
       totalQuestions: QUESTIONS.length,
       mode,
       completedAt: Date.now(),
+      domain: 'Engineering Core',
+      timeSpentSec: timeSpent,
+      weakTopics,
     });
   };
 

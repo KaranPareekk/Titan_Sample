@@ -32,7 +32,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({ onOpenCodeLab }) =
       programs: StorageService.getPrograms(),
       assessments: StorageService.getAssessments(),
       exportDate: new Date().toISOString(),
-      system: 'TITAN_OS v3.8-PRO',
+      system: 'TITAN_OS v1.0.4',
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
