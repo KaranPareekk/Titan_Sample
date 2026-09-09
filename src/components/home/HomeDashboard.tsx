@@ -1,35 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import {
-  GitGraph,
-  Layers,
-  Cpu,
   Code2,
-  Database,
-  GraduationCap,
-  Sparkles,
-  FileCode,
-  FolderGit2,
-  Bookmark,
-  ArrowRight,
-  User,
-  Mail,
-  ExternalLink,
-  Upload,
-  Globe,
-  Copy,
-  Check,
-  Newspaper,
-  Terminal,
-  Zap,
   Bot,
-  Cloud,
-  BookOpen,
-  HelpCircle,
-  Compass,
-  Play,
-  Lightbulb,
+  Sparkles,
+  ExternalLink,
+  Trophy,
+  FileCode2,
+  CheckSquare,
+  Newspaper,
+  Quote,
+  TrendingUp,
 } from 'lucide-react';
-import { GithubIcon, LinkedinIcon } from '../common/BrandIcons';
 import { ModuleId, UserProgress, SavedProgram, UserProfile } from '../../types';
 import { StorageService } from '../../services/storage';
 import { TitanLogo } from '../common/TitanLogo';
@@ -41,765 +22,250 @@ interface HomeDashboardProps {
   onNavigate: (module: ModuleId) => void;
 }
 
+// --- Static Data ---
+
 const TECH_NEWS = [
   {
     id: 1,
-    category: 'AI & SYSTEM ARCHITECTURE',
-    title: 'Gemini 2.5 Flash Unveils Multimodal Real-Time Native Streaming Engine',
-    source: 'Google DeepMind Blog',
-    time: '2 hours ago',
-    tag: 'NEW',
-    tagColor: 'text-cyan-400 border-cyan-500/40 bg-cyan-950/40',
+    title: 'Google DeepMind releases Gemini 2.5 with native code execution',
+    source: 'TechCrunch',
+    time: '2h ago',
+    url: 'https://techcrunch.com',
+    tag: 'AI',
+    tagColor: 'text-purple-400 bg-purple-950/60 border-purple-800',
   },
   {
     id: 2,
-    category: 'LINUX & KERNEL',
-    title: 'Linux Kernel 6.14 Improves eBPF Memory Locality & Zero-Copy I/O Rings',
-    source: 'Kernel.org Release Notes',
-    time: '5 hours ago',
-    tag: 'CORE',
-    tagColor: 'text-emerald-400 border-emerald-500/40 bg-emerald-950/40',
+    title: 'TypeScript 5.6 ships with new narrowing improvements',
+    source: 'The Verge',
+    time: '4h ago',
+    url: 'https://devblogs.microsoft.com/typescript/',
+    tag: 'Web',
+    tagColor: 'text-cyan-400 bg-cyan-950/60 border-cyan-800',
   },
   {
     id: 3,
-    category: 'DATABASE INTERNALS',
-    title: 'B+ Tree Index Concurrency: Lock-Free Latch Protocols in Modern NVMe SSDs',
-    source: 'SIGMOD Systems Review',
-    time: '12 hours ago',
-    tag: 'DBMS',
-    tagColor: 'text-amber-400 border-amber-500/40 bg-amber-950/40',
+    title: 'Linux kernel 6.11 merges new memory folios optimizations',
+    source: 'Phoronix',
+    time: '6h ago',
+    url: 'https://phoronix.com',
+    tag: 'Systems',
+    tagColor: 'text-emerald-400 bg-emerald-950/60 border-emerald-800',
   },
   {
     id: 4,
-    category: 'DISTRIBUTED SYSTEMS',
-    title: 'Raft Consensus Protocol Optimization for Sub-Millisecond Multi-Region Quorums',
-    source: 'ACM Queue Papers',
-    time: '1 day ago',
-    tag: 'PAPERS',
-    tagColor: 'text-purple-400 border-purple-500/40 bg-purple-950/40',
+    title: 'LeetCode adds AI-powered hint system for premium users',
+    source: 'LeetCode Blog',
+    time: '8h ago',
+    url: 'https://leetcode.com',
+    tag: 'DSA',
+    tagColor: 'text-amber-400 bg-amber-950/60 border-amber-800',
+  },
+  {
+    id: 5,
+    title: 'Rust 1.81 lands with new error handling ergonomics',
+    source: 'This Week in Rust',
+    time: '12h ago',
+    url: 'https://this-week-in-rust.org',
+    tag: 'Languages',
+    tagColor: 'text-rose-400 bg-rose-950/60 border-rose-800',
   },
 ];
 
-const CLOUD_DEPLOY_TARGETS = [
-  {
-    name: 'Vercel',
-    tagline: 'Instant Edge & Next/Vite Deploy',
-    url: 'https://vercel.com/new',
-    description: 'Deploy project to global edge network directly with automatic Git CI/CD.',
-    color: 'from-cyan-500/20 to-blue-500/10 border-cyan-500/40 text-cyan-300',
-    buttonText: 'Deploy on Vercel',
-  },
-  {
-    name: 'GitHub',
-    tagline: 'Create Repo & Push Source',
-    url: 'https://github.com/new',
-    description: 'Host codebase on GitHub, collaborate with contributors, and enable GitHub Actions.',
-    color: 'from-purple-500/20 to-indigo-500/10 border-purple-500/40 text-purple-300',
-    buttonText: 'Push to GitHub',
-  },
-  {
-    name: 'Netlify',
-    tagline: 'Drop & Instant Static Hosting',
-    url: 'https://app.netlify.com/drop',
-    description: 'Drag & drop distribution files or import Git repo for zero-config global hosting.',
-    color: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/40 text-emerald-300',
-    buttonText: 'Netlify Drop',
-  },
-  {
-    name: 'Render',
-    tagline: 'Fullstack Cloud Containers',
-    url: 'https://render.com',
-    description: 'Deploy Node backends, Docker images, and managed Postgres relational databases.',
-    color: 'from-amber-500/20 to-orange-500/10 border-amber-500/40 text-amber-300',
-    buttonText: 'Deploy on Render',
-  },
+const QUOTES = [
+  { text: 'First, solve the problem. Then, write the code.', author: 'John Johnson' },
+  { text: 'Code is like humor. When you have to explain it, it is bad.', author: 'Cory House' },
+  { text: 'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', author: 'Martin Fowler' },
+  { text: 'Programs must be written for people to read, and only incidentally for machines to execute.', author: 'Harold Abelson' },
+  { text: 'The best error message is the one that never shows up.', author: 'Thomas Fuchs' },
+  { text: 'Simplicity is the soul of efficiency.', author: 'Austin Freeman' },
+  { text: 'Make it work, make it right, make it fast.', author: 'Kent Beck' },
 ];
 
-export const HomeDashboard: React.FC<HomeDashboardProps> = ({
-  progress: passedProgress,
-  savedPrograms: passedPrograms,
-  onNavigate,
-}) => {
-  const progress = passedProgress || StorageService.getProgress();
-  const savedPrograms = passedPrograms || StorageService.getPrograms();
+const DEV_LINKS = [
+  { name: 'LinkedIn', url: 'https://linkedin.com', hoverColor: 'hover:border-blue-500/60', iconBg: 'bg-blue-950/60', iconText: 'in', iconColor: 'text-blue-400', labelHover: 'group-hover:text-blue-400' },
+  { name: 'LeetCode', url: 'https://leetcode.com', hoverColor: 'hover:border-amber-500/60', iconBg: 'bg-amber-950/60', iconText: 'LC', iconColor: 'text-amber-400', labelHover: 'group-hover:text-amber-400' },
+  { name: 'CodeChef', url: 'https://codechef.com', hoverColor: 'hover:border-orange-500/60', iconBg: 'bg-orange-950/60', iconText: 'CC', iconColor: 'text-orange-400', labelHover: 'group-hover:text-orange-400' },
+  { name: 'GitHub', url: 'https://github.com', hoverColor: 'hover:border-slate-400/60', iconBg: 'bg-slate-700/60', iconText: 'GH', iconColor: 'text-slate-300', labelHover: 'group-hover:text-slate-200' },
+  { name: 'Codeforces', url: 'https://codeforces.com', hoverColor: 'hover:border-red-500/60', iconBg: 'bg-red-950/60', iconText: 'CF', iconColor: 'text-red-400', labelHover: 'group-hover:text-red-400' },
+  { name: 'GeeksforGeeks', url: 'https://geeksforgeeks.org', hoverColor: 'hover:border-green-500/60', iconBg: 'bg-green-950/60', iconText: 'GG', iconColor: 'text-green-400', labelHover: 'group-hover:text-green-400' },
+  { name: 'MDN Web Docs', url: 'https://developer.mozilla.org', hoverColor: 'hover:border-cyan-500/60', iconBg: 'bg-cyan-950/60', iconText: 'MDN', iconColor: 'text-cyan-400', labelHover: 'group-hover:text-cyan-400' },
+  { name: 'Stack Overflow', url: 'https://stackoverflow.com', hoverColor: 'hover:border-yellow-500/60', iconBg: 'bg-yellow-950/60', iconText: 'SO', iconColor: 'text-yellow-400', labelHover: 'group-hover:text-yellow-400' },
+];
 
+// --- Component ---
+
+export const HomeDashboard: React.FC<HomeDashboardProps> = ({ onNavigate }) => {
   const [profile, setProfile] = useState<UserProfile>(() => StorageService.getUserProfile());
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
-  const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
 
-  // Day activity calculations
-  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  const past7Days = useMemo(() => {
-    const days = [];
-    const baseMinutes = Math.max(5, Math.floor(progress.totalTimeMinutes / 7));
-    const completedCount = progress.completedLabs.length;
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dayName = dayNames[d.getDay()];
-      const isToday = i === 0;
-      const factor = (7 - i) / 7;
-      const minutes = isToday
-        ? Math.round(baseMinutes * 1.3 + completedCount * 4)
-        : Math.round(baseMinutes * (0.5 + factor * 0.9));
-      const heightPercent = Math.min(100, Math.max(18, Math.round((minutes / Math.max(30, baseMinutes * 2)) * 85)));
-      days.push({ dayName, minutes, heightPercent, isToday });
-    }
-    return days;
-  }, [progress.totalTimeMinutes, progress.completedLabs.length]);
+  const progress = useMemo(() => StorageService.getProgress(), []);
+  const programs = useMemo(() => StorageService.getPrograms(), []);
 
-  const overallScore = Math.round(
-    (Object.values(progress.topicMastery) as number[]).reduce((a: number, b: number) => a + b, 0) /
-      Math.max(1, Object.keys(progress.topicMastery).length)
-  );
+  const quote = useMemo(() => {
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+    );
+    return QUOTES[dayOfYear % QUOTES.length];
+  }, []);
 
-  const dashoffset = 282.7 - (282.7 * overallScore) / 100;
-
-  const copyCommand = (cmd: string, id: string) => {
-    navigator.clipboard.writeText(cmd);
-    setCopiedCmd(id);
-    setTimeout(() => setCopiedCmd(null), 2000);
-  };
+  const stats = [
+    { label: 'Problems Solved', value: progress.assessmentsPassed, icon: <CheckSquare className="w-4 h-4" />, color: 'text-emerald-400' },
+    { label: 'Labs Completed', value: progress.completedLabs.length, icon: <Trophy className="w-4 h-4" />, color: 'text-amber-400' },
+    { label: 'Programs Written', value: programs.length, icon: <FileCode2 className="w-4 h-4" />, color: 'text-cyan-400' },
+    { label: 'Time (min)', value: progress.totalTimeMinutes, icon: <TrendingUp className="w-4 h-4" />, color: 'text-purple-400' },
+  ];
 
   return (
-    <div
-      id="home-command-center"
-      className="h-full w-full p-4 lg:p-6 station-bg overflow-y-auto flex flex-col gap-6 text-slate-300 select-none font-sans"
-    >
-      {/* 1. FUTURISTIC HERO BANNER & PROFILE CARD */}
-      <section className="bg-gradient-to-r from-[#0d1424] via-[#0b101c] to-[#07090e] border border-cyan-500/30 rounded-2xl p-5 sm:p-6 shadow-[0_0_25px_rgba(6,182,212,0.15)] flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
-        {/* Decorative Grid Lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+    <div className="h-full w-full p-4 sm:p-6 station-bg overflow-y-auto flex flex-col gap-5 max-w-6xl mx-auto text-slate-200 font-sans">
 
-        {/* Brand Logo & Mission Statement */}
-        <div className="flex items-center gap-4 relative z-10 w-full lg:w-auto">
-          <TitanLogo size={56} />
-          <div className="flex flex-col">
-            <div className="flex items-center gap-3">
-              <h1 className="font-tech text-xl sm:text-2xl font-bold tracking-wider text-white">
-                TITAN_OS
-              </h1>
-              <span className="px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-700/60 text-[10px] font-mono text-cyan-400 font-bold uppercase">
-                ENGINEERING WORKSTATION
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 font-mono leading-relaxed max-w-xl">
-              The interactive computer science & coding workstation built for beginners learning to code and programmers mastering software engineering.
-            </p>
+      {/* HEADER */}
+      <header className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <TitanLogo size={36} />
+          <div>
+            <h1 className="font-tech text-xl font-bold tracking-wider text-white">TITAN_OS</h1>
+            <p className="text-[11px] text-slate-500 font-mono">Your coding companion</p>
           </div>
         </div>
-
-        {/* User Identity & Profile Badge */}
-        <div className="flex items-center gap-4 p-3.5 rounded-xl bg-[#07090e]/80 border border-slate-700/80 shadow-lg relative z-10 w-full lg:w-auto justify-between sm:justify-start">
-          <div className="relative">
-            <div className="w-14 h-14 rounded-full border-2 border-cyan-400 p-0.5 shadow-[0_0_12px_rgba(6,182,212,0.4)] overflow-hidden">
-              <img
-                src={profile.avatarUrl}
-                alt={profile.name}
-                className="w-full h-full object-cover rounded-full"
-              />
-            </div>
-            <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-[#07090e] shadow-[0_0_6px_#10b981]" />
+        <button
+          type="button"
+          onClick={() => setIsProfileModalOpen(true)}
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 transition-all cursor-pointer"
+        >
+          <div className="w-7 h-7 rounded-full overflow-hidden border border-cyan-400/60 shrink-0">
+            <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
           </div>
+          <span className="text-xs font-mono text-white hidden sm:block">{profile.name}</span>
+        </button>
+      </header>
 
-          <div className="flex flex-col font-mono">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-white tracking-wide">{profile.name}</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-950 border border-cyan-800 text-cyan-300 font-bold">
-                STUDENT & PRO
-              </span>
-            </div>
-            <span className="text-[10px] text-cyan-400 font-semibold">{profile.title || 'Software Engineering Learner'}</span>
-            <span className="text-[10px] text-slate-400 truncate max-w-[180px]">{profile.email}</span>
+      {/* MAIN GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1">
 
-            <button
-              type="button"
-              onClick={() => setIsProfileModalOpen(true)}
-              className="mt-1 text-[10px] text-cyan-400 hover:text-cyan-300 underline text-left cursor-pointer"
-            >
-              Edit Profile & Links →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. BEGINNER QUICK START / START YOUR JOURNEY */}
-      <section className="bg-gradient-to-r from-[#0c1424] via-[#0e172a] to-[#0c1424] border border-cyan-500/30 rounded-2xl p-5 shadow-lg flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-base">
-              🌱
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-white tracking-wide font-tech flex items-center gap-2">
-                BEGINNER QUICK START — NEW TO CODING? START HERE!
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 font-mono font-normal">
-                  Zero Setup Needed
-                </span>
-              </h2>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
-                Simple, step-by-step interactive tools to learn code, watch logic in action, and get friendly AI help.
-              </p>
-            </div>
-          </div>
-          <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 border border-cyan-800/80 px-2.5 py-1 rounded self-start sm:self-auto font-semibold">
-            Recommended Beginner Path ↓
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Card 1: CodeLab */}
-          <div
-            onClick={() => onNavigate('codelab')}
-            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-cyan-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-cyan-400">STEP 1</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono">CODE RUNNER</span>
-              </div>
-              <h3 className="font-tech text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
-                Write & Run First Code
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Run simple Python, JavaScript, or Java in your browser with instant output. No installation or setup needed!
-              </p>
-            </div>
-            <button
-              type="button"
-              className="w-full py-1.5 rounded bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-cyan-500/30 group-hover:border-transparent cursor-pointer"
-            >
-              <span>Open Code Runner</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          {/* Card 2: Algorithms Visualizer */}
-          <div
-            onClick={() => onNavigate('dsa')}
-            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-emerald-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-emerald-400">STEP 2</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono">VISUALIZER</span>
-              </div>
-              <h3 className="font-tech text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
-                Watch Code Visually
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                See how sorting, arrays, and loops work step-by-step with live visual animations and simple explanations.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="w-full py-1.5 rounded bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-emerald-500/30 group-hover:border-transparent cursor-pointer"
-            >
-              <span>Explore Visualizer</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          {/* Card 3: AI Tutor */}
-          <div
-            onClick={() => onNavigate('ai')}
-            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-purple-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-purple-400">STEP 3</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 font-mono">SMART TUTOR</span>
-              </div>
-              <h3 className="font-tech text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
-                Ask the AI Tutor
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Confused by an error or concept? Ask in plain English. Get beginner-friendly analogies and instant fixes.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="w-full py-1.5 rounded bg-purple-500/10 hover:bg-purple-500 text-purple-400 hover:text-white font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-purple-500/30 group-hover:border-transparent cursor-pointer"
-            >
-              <span>Chat with AI Tutor</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          {/* Card 4: Assessment / Quizzes */}
-          <div
-            onClick={() => onNavigate('assessment')}
-            className="p-4 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-amber-500/60 hover:bg-[#0c1426] transition-all cursor-pointer group flex flex-col justify-between gap-3 shadow-md"
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-amber-400">STEP 4</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 font-mono">FUN QUIZ</span>
-              </div>
-              <h3 className="font-tech text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
-                Test Your Knowledge
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Try a quick beginner multiple-choice quiz or write simple beginner code (Hello World, Even/Odd, Maximum).
-              </p>
-            </div>
-            <button
-              type="button"
-              className="w-full py-1.5 rounded bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-black font-tech font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-amber-500/30 group-hover:border-transparent cursor-pointer"
-            >
-              <span>Try Beginner Quiz</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. 1-CLICK CLOUD DEPLOY & PROJECT UPLOAD HUB */}
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+        {/* LEFT: Tech News */}
+        <div className="lg:col-span-2 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <Cloud className="w-4 h-4 text-cyan-400" />
-            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-200 font-tech">
-              1-Click Cloud Deploy & Project Upload Hub
-            </h2>
+            <Newspaper className="w-4 h-4 text-cyan-400" />
+            <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Tech News</span>
           </div>
-          <span className="text-[10px] font-mono text-slate-400 hidden sm:inline">
-            Direct upload & deploy links for Vercel, GitHub, Netlify & Render
-          </span>
+          <div className="flex flex-col gap-2">
+            {TECH_NEWS.map((item) => (
+              <a
+                key={item.id}
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-900 transition-all group"
+              >
+                <div className="flex flex-col gap-1 flex-1 min-w-0">
+                  <p className="text-sm text-slate-200 group-hover:text-white transition-colors leading-snug">
+                    {item.title}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border ${item.tagColor}`}>
+                      {item.tag}
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-mono">{item.source}</span>
+                    <span className="text-[11px] text-slate-600 font-mono">{item.time}</span>
+                  </div>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-600 group-hover:text-slate-400 shrink-0 mt-1 transition-colors" />
+              </a>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {CLOUD_DEPLOY_TARGETS.map((target, idx) => (
-            <div
-              key={idx}
-              className={`p-4 rounded-xl bg-gradient-to-br ${target.color} bg-[#0e1422] border flex flex-col justify-between gap-3 shadow-md hover:scale-[1.01] transition-transform`}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-tech text-sm font-bold text-white tracking-wide">
-                    {target.name}
-                  </span>
-                  <span className="text-[9px] font-mono uppercase text-slate-400 border border-slate-700 px-1.5 py-0.5 rounded">
-                    CLOUD
-                  </span>
-                </div>
-                <span className="text-[11px] font-mono font-semibold text-cyan-300 block mb-1">
-                  {target.tagline}
-                </span>
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  {target.description}
-                </p>
-              </div>
+        {/* RIGHT COLUMN */}
+        <div className="flex flex-col gap-4">
 
-              <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between">
+          {/* Quote of the Day */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Quote className="w-4 h-4 text-purple-400" />
+              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Quote of the Day</span>
+            </div>
+            <div className="p-4 rounded-xl bg-gradient-to-br from-purple-950/30 to-slate-900/60 border border-purple-900/40">
+              <p className="text-sm text-slate-300 italic leading-relaxed">"{quote.text}"</p>
+              <p className="text-[11px] text-purple-400 font-mono mt-2">— {quote.author}</p>
+            </div>
+          </div>
+
+          {/* Quick Access */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <ExternalLink className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Quick Access</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {DEV_LINKS.map((link) => (
                 <a
-                  href={target.url}
+                  key={link.name}
+                  href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-tech font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(6,182,212,0.3)] cursor-pointer w-full justify-center"
+                  className={`flex items-center gap-2 p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 transition-all ${link.hoverColor} group`}
                 >
-                  <span>{target.buttonText}</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick CLI Deployment Helper */}
-        <div className="p-3 bg-[#0a0f1d] border border-slate-800 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs text-slate-300">
-          <div className="flex items-center gap-2 truncate">
-            <Terminal className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="text-slate-400">Git Clone:</span>
-            <code className="bg-black/60 px-2 py-0.5 rounded text-cyan-300 border border-slate-800 truncate">
-              git clone https://github.com/KaranPareekk/Titan_Sample.git
-            </code>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => copyCommand('git clone https://github.com/KaranPareekk/Titan_Sample.git', 'clone')}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] flex items-center gap-1 cursor-pointer"
-            >
-              {copiedCmd === 'clone' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-              <span>{copiedCmd === 'clone' ? 'Copied' : 'Copy Clone'}</span>
-            </button>
-            <a
-              href="https://github.com/KaranPareekk/Titan_Sample"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-2.5 py-1 rounded bg-purple-950 hover:bg-purple-900 border border-purple-700 text-purple-300 text-[11px] flex items-center gap-1"
-            >
-              <GithubIcon className="w-3 h-3" />
-              <span>View Repo</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. MAIN WORKSTATION BODY: 2/3 Left (Analytics + Labs) & 1/3 Right (News + Socials + Terminal) */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* 2/3 Main Workstation Area */}
-        <div className="flex-1 lg:w-2/3 flex flex-col gap-6">
-          {/* Top Analytics Bar (Mastery Circle + 7-Day Activity) */}
-          <div className="flex flex-col sm:flex-row gap-6 min-h-[190px]">
-            {/* Engineering Core Mastery Circle */}
-            <div className="sm:w-1/3 bg-[#0F172A]/90 cyan-glow border border-[#1E293B] rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none" />
-
-              <div className="relative w-24 h-24">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="transparent" stroke="#1e293b" strokeWidth="8" />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="transparent"
-                    stroke="#06b6d4"
-                    strokeWidth="8"
-                    strokeDasharray="282.7"
-                    strokeDashoffset={dashoffset}
-                    strokeLinecap="round"
-                    className="transition-all duration-700 ease-out"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-bold text-white font-tech">{overallScore}%</span>
-                  <span className="text-[8px] uppercase tracking-tighter opacity-60 font-mono">Total Mastery</span>
-                </div>
-              </div>
-
-              <div className="mt-2 text-xs font-bold text-cyan-400 font-tech uppercase tracking-wider">
-                ENGINEERING CORE
-              </div>
-
-              <button
-                type="button"
-                onClick={() => onNavigate('assessment')}
-                className="mt-1 text-[10px] terminal-font text-slate-400 hover:text-cyan-300 underline cursor-pointer"
-              >
-                Verify Competency →
-              </button>
-            </div>
-
-            {/* Learning Activity Histogram */}
-            <div className="sm:w-2/3 bg-[#0F172A]/90 border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                    Learning & Code Activity
-                  </h3>
-                  <span className="text-[10px] terminal-font text-slate-500">
-                    Total Lab Time: <strong className="text-cyan-400">{progress.totalTimeMinutes} min</strong> • Completed Labs: <strong className="text-white">{progress.completedLabs.length}</strong>
+                  <div className={`w-7 h-7 rounded-md ${link.iconBg} flex items-center justify-center shrink-0`}>
+                    <span className={`text-[10px] font-bold font-mono ${link.iconColor}`}>{link.iconText}</span>
+                  </div>
+                  <span className={`text-xs font-mono text-slate-400 transition-colors truncate ${link.labelHover}`}>
+                    {link.name}
                   </span>
-                </div>
-                <span className="text-[10px] terminal-font text-cyan-500 border border-cyan-500/30 px-2 py-0.5 rounded bg-cyan-950/40">
-                  LAST 7 DAYS
-                </span>
-              </div>
-
-              <div className="flex items-end justify-between h-24 gap-2 pt-2 border-b border-[#1E293B] pb-2">
-                {past7Days.map((day, dIdx) => (
-                  <div key={dIdx} className="flex-1 flex flex-col items-center gap-1 group">
-                    <div
-                      className={`w-full transition-all rounded-t ${
-                        day.isToday
-                          ? 'bg-cyan-500 group-hover:bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.4)]'
-                          : day.heightPercent > 50
-                          ? 'bg-cyan-500/50 group-hover:bg-cyan-500/70'
-                          : 'bg-slate-800 group-hover:bg-slate-700'
-                      }`}
-                      style={{ height: `${day.heightPercent}%` }}
-                      title={`${day.dayName}: ${day.minutes} min`}
-                    />
-                    <span
-                      className={`text-[9px] terminal-font ${
-                        day.isToday ? 'text-cyan-300 font-bold' : 'text-slate-500'
-                      }`}
-                    >
-                      {day.dayName}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* 2x2 Workstation Lab Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* DBMS Sandbox */}
-            <div
-              id="card-dbms-sandbox"
-              onClick={() => onNavigate('dbms')}
-              className="bg-[#0F172A]/90 border border-[#1E293B] rounded-xl p-4 hover:border-cyan-500/50 transition-colors cursor-pointer group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <Database className="w-4 h-4" />
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">DBMS SQL Workbench</h4>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  Interactive SQL sandbox: write queries, inspect tables, run JOINs, and practice databases visually.
-                </p>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
-                <span className="text-[9px] font-bold text-amber-400 uppercase terminal-font">
-                  Mastery: {progress.topicMastery['Databases'] ?? 85}%
-                </span>
-                <span className="text-[9px] px-2 py-0.5 bg-amber-500/20 rounded text-amber-300 terminal-font font-bold">
-                  LAUNCH SQL
-                </span>
-              </div>
+          {/* Progress Tracker */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Your Progress</span>
             </div>
-
-            {/* Polyglot IDE */}
-            <div
-              id="card-code-lab"
-              onClick={() => onNavigate('codelab')}
-              className="bg-[#0F172A]/90 border border-[#1E293B] rounded-xl p-4 hover:border-cyan-500/50 transition-colors cursor-pointer group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <Code2 className="w-4 h-4" />
+            <div className="grid grid-cols-2 gap-2">
+              {stats.map((stat) => (
+                <div key={stat.label} className="flex flex-col gap-1.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <div className={`${stat.color} flex items-center gap-1.5`}>
+                    {stat.icon}
+                    <span className="text-[10px] font-mono text-slate-500 leading-tight">{stat.label}</span>
                   </div>
-                  <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">CodeLab Editor & Runner</h4>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  Write, run, and debug Python, JavaScript, and Java programs in your browser with instant console output.
-                </p>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
-                <div className="flex gap-1.5">
-                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">PYTHON</span>
-                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">JS</span>
-                  <span className="text-[8px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">JAVA</span>
-                </div>
-                <span className="text-[9px] terminal-font text-purple-400 font-bold">LAUNCH IDE</span>
-              </div>
-            </div>
-
-            {/* Digital Logic Lab */}
-            <div
-              id="card-circuit-lab"
-              onClick={() => onNavigate('circuits')}
-              className="bg-[#0F172A]/90 border border-[#1E293B] rounded-xl p-4 hover:border-cyan-500/50 transition-colors cursor-pointer group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <Cpu className="w-4 h-4" />
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">Digital Logic Lab</h4>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  Build and test logic circuits with interactive switches, gates (AND, OR, NOT, XOR), and live signals.
-                </p>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
-                <span className="text-[9px] font-bold text-cyan-400 uppercase terminal-font">
-                  Interactive Gates
-                </span>
-                <span className="text-[9px] px-2 py-0.5 bg-cyan-500/20 rounded text-cyan-300 terminal-font font-bold">
-                  RESUME LAB
-                </span>
-              </div>
-            </div>
-
-            {/* Algorithms Lab */}
-            <div
-              id="card-algorithms-lab"
-              onClick={() => onNavigate('dsa')}
-              className="bg-[#0F172A]/90 border border-[#1E293B] rounded-xl p-4 hover:border-cyan-500/50 transition-colors cursor-pointer group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <GitGraph className="w-4 h-4" />
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-200 group-hover:text-white">Algorithms & DSA Lab</h4>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-tight mb-3">
-                  Step-by-step visual animations of sorting (Bubble, Merge), binary search, and graph traversal (BFS, DFS).
-                </p>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-[#1E293B]/80">
-                <span className="text-[9px] font-bold text-emerald-400 uppercase terminal-font">
-                  Mastery: {progress.topicMastery['Algorithms'] ?? 78}%
-                </span>
-                <span className="text-[9px] text-slate-400 font-mono">10 MODELS</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Secondary Navigation Row: AI Copilot, Knowledge Base, Workspace */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button
-              type="button"
-              onClick={() => onNavigate('ai')}
-              className="p-3 bg-[#0F172A]/80 border border-[#1E293B] hover:border-cyan-500/50 rounded-xl flex items-center justify-between group transition-all text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <Bot className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs font-tech font-semibold text-slate-200 group-hover:text-white">
-                  AI Engineering Copilot
-                </span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onNavigate('knowledge')}
-              className="p-3 bg-[#0F172A]/80 border border-[#1E293B] hover:border-cyan-500/50 rounded-xl flex items-center justify-between group transition-all text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <Layers className="w-4 h-4 text-amber-400" />
-                <span className="text-xs font-tech font-semibold text-slate-200 group-hover:text-white">
-                  Knowledge Base (Big-O & Latency)
-                </span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 transition-colors" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onNavigate('workspace')}
-              className="p-3 bg-[#0F172A]/80 border border-[#1E293B] hover:border-cyan-500/50 rounded-xl flex items-center justify-between group transition-all text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <FolderGit2 className="w-4 h-4 text-purple-400" />
-                <span className="text-xs font-tech font-semibold text-slate-200 group-hover:text-white">
-                  My Workspace ({savedPrograms.length} items)
-                </span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-400 transition-colors" />
-            </button>
-          </div>
-        </div>
-
-        {/* 1/3 Right Column: News Feed & Developer Profiles */}
-        <div className="lg:w-1/3 flex flex-col gap-5">
-          {/* TECH NEWS / ENGINEERING WIRE FEED */}
-          <div className="bg-[#0F172A] border border-[#1E293B] rounded-xl overflow-hidden flex flex-col shadow-xl">
-            <div className="p-3 bg-[#162032] border-b border-[#1E293B] flex justify-between items-center select-none">
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-200 terminal-font flex items-center gap-1.5">
-                <Newspaper className="w-3.5 h-3.5 text-cyan-400" />
-                Engineering Wire & News
-              </span>
-              <span className="text-[9px] font-mono text-cyan-400 px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-800">
-                LIVE
-              </span>
-            </div>
-
-            <div className="p-3 space-y-3 max-h-[320px] overflow-y-auto font-mono text-xs">
-              {TECH_NEWS.map((news) => (
-                <div
-                  key={news.id}
-                  className="p-2.5 rounded-lg bg-[#0a0f1d] border border-slate-800 hover:border-cyan-500/40 transition-colors flex flex-col gap-1"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase">
-                      {news.category}
-                    </span>
-                    <span className={`text-[8px] font-bold px-1.5 py-0.2 rounded border ${news.tagColor}`}>
-                      {news.tag}
-                    </span>
-                  </div>
-                  <h5 className="font-semibold text-zinc-200 leading-snug text-[11px] hover:text-cyan-300 cursor-pointer">
-                    {news.title}
-                  </h5>
-                  <div className="flex items-center justify-between text-[9px] text-zinc-500 pt-1">
-                    <span>{news.source}</span>
-                    <span>{news.time}</span>
-                  </div>
+                  <span className={`text-2xl font-tech font-bold ${stat.color}`}>{stat.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* DEVELOPER PLATFORM CONNECT */}
-          <div className="bg-[#0F172A] border border-[#1E293B] rounded-xl p-4 flex flex-col gap-3 shadow-xl">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-200 terminal-font flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-purple-400" />
-                Developer Platforms
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsProfileModalOpen(true)}
-                className="text-[10px] text-cyan-400 hover:underline cursor-pointer"
-              >
-                Configure
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-              <a
-                href={profile.githubUrl || 'https://github.com/KaranPareekk'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-lg bg-[#0a0f1d] border border-slate-800 hover:border-slate-600 flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
-              >
-                <GithubIcon className="w-4 h-4 text-slate-400" />
-                <div className="flex flex-col truncate">
-                  <span className="text-[10px] text-slate-500">GitHub</span>
-                  <span className="truncate text-[11px] font-semibold">
-                    {profile.githubUrl ? profile.githubUrl.split('/').pop() : 'Profile'}
-                  </span>
-                </div>
-              </a>
-
-              <a
-                href={profile.linkedinUrl || 'https://linkedin.com'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-lg bg-[#0a0f1d] border border-slate-800 hover:border-blue-500/50 flex items-center gap-2 text-slate-300 hover:text-blue-300 transition-colors"
-              >
-                <LinkedinIcon className="w-4 h-4 text-blue-400" />
-                <div className="flex flex-col truncate">
-                  <span className="text-[10px] text-slate-500">LinkedIn</span>
-                  <span className="truncate text-[11px] font-semibold">Connected</span>
-                </div>
-              </a>
-
-              <a
-                href={profile.leetcodeUrl || 'https://leetcode.com'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-lg bg-[#0a0f1d] border border-slate-800 hover:border-amber-500/50 flex items-center gap-2 text-slate-300 hover:text-amber-300 transition-colors"
-              >
-                <Code2 className="w-4 h-4 text-amber-400" />
-                <div className="flex flex-col truncate">
-                  <span className="text-[10px] text-slate-500">LeetCode</span>
-                  <span className="truncate text-[11px] font-semibold">Rank Top 5%</span>
-                </div>
-              </a>
-
-              <a
-                href={profile.codeforcesUrl || 'https://codeforces.com'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-lg bg-[#0a0f1d] border border-slate-800 hover:border-red-500/50 flex items-center gap-2 text-slate-300 hover:text-red-300 transition-colors"
-              >
-                <Sparkles className="w-4 h-4 text-red-400" />
-                <div className="flex flex-col truncate">
-                  <span className="text-[10px] text-slate-500">Codeforces</span>
-                  <span className="truncate text-[11px] font-semibold">Candidate Master</span>
-                </div>
-              </a>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* User Profile Modal */}
+      {/* BOTTOM ACTION BAR */}
+      <div className="pt-4 border-t border-slate-800/80 flex flex-wrap gap-2 items-center">
+        <span className="text-[11px] font-mono text-slate-500 mr-1">Jump to:</span>
+        {[
+          { id: 'codelab' as ModuleId, label: 'Code Editor', icon: <Code2 className="w-3.5 h-3.5" />, cls: 'hover:border-cyan-500/50 hover:text-cyan-300' },
+          { id: 'ai' as ModuleId, label: 'AI Tutor', icon: <Bot className="w-3.5 h-3.5" />, cls: 'hover:border-purple-500/50 hover:text-purple-300' },
+          { id: 'assessment' as ModuleId, label: 'Practice', icon: <Sparkles className="w-3.5 h-3.5" />, cls: 'hover:border-amber-500/50 hover:text-amber-300' },
+        ].map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onNavigate(item.id)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 transition-colors cursor-pointer ${item.cls}`}
+          >
+            {item.icon}
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* USER PROFILE MODAL */}
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
-        onProfileUpdated={(up) => setProfile(up)}
+        onProfileUpdated={(newProf) => {
+          setProfile(newProf);
+        }}
       />
     </div>
   );
