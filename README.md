@@ -1,19 +1,23 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+﻿# Titan_OS
 
-# Run and deploy your AI Studio app
+An integrated, browser-native developer workstation and learning OS built for modern programmers and computer science students.
 
-This contains everything you need to run your app locally.
-https://ai.studio/apps/52b2ec55-7588-4672-a4a1-3c6992bce690
+## Live Deployment
+- **Live Website:** [https://titan-sample.vercel.app/](https://titan-sample.vercel.app/)
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## Features
+- **Titan AI Copilot**: Real-time coding assistant powered by Google Gemini 3.6 Flash with local storage persistence.
+- **Home Dashboard**: Live tech news with article imagery via Dev.to API, Quote of the Day, and quick developer links.
+- **Code Lab**: In-browser IDE supporting JavaScript, Python, and Java with full STDIN execution.
+- **Assessment Terminal**: Curated coding challenges, multiple-choice questions, and automatic evaluation.
+- **Interactive CS Labs**: Visual simulators for Data Structures, Memory & Pointers, Digital Logic gates, and an in-memory SQL Workbench.
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Tech Stack
+- React 18, TypeScript, Vite
+- TailwindCSS, Lucide Icons
+- Google Gemini 3.6 Flash via Generative Language API
+- Deployed on Vercel Edge Network
