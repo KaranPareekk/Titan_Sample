@@ -3,7 +3,7 @@ import { Bot, Send, Trash2, Key, Sparkles, Copy, Check, ExternalLink, AlertCircl
 
 const STORAGE_KEY_MSGS = "titan_chat_messages";
 const STORAGE_KEY_APIKEY = "titan_gemini_api_key";
-const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
+const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=";
 
 interface Msg { id: string; role: "user" | "ai"; text: string; }
 
