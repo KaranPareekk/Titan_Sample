@@ -757,14 +757,6 @@ export const CodeLab: React.FC = () => {
                   </div>
                 );
               })}
-
-              {/* Import Tip Box */}
-              <div className="mt-4 p-2.5 rounded-lg border border-dashed border-zinc-800 bg-zinc-950/50 text-[10px] text-slate-400 flex flex-col gap-1.5">
-                <span className="text-cyan-400 font-bold flex items-center gap-1">
-                  <Upload className="w-3 h-3" /> Quick Import
-                </span>
-                <span>Drag & drop files anywhere or click Import to load local source files.</span>
-              </div>
             </div>
           </aside>
         )}
@@ -865,18 +857,17 @@ export const CodeLab: React.FC = () => {
             {viewMode !== 'editor' && (
               <div
                 id="codelab-terminal-pane"
-                className={`\${
+                className={`${
                   viewMode === 'terminal' ? 'lg:col-span-12' : 'lg:col-span-5'
                 } flex flex-col bg-[#080b11] overflow-hidden`}
               >
                 {/* STDIN Input Buffer Header & Area */}
                 <div className="border-b border-zinc-800 p-3 bg-[#0a0e16] flex flex-col shrink-0">
-                  <div className="flex items-center justify-between text-[11px] font-mono mb-1.5">
+                  <div className="flex items-center text-[11px] font-mono mb-1.5">
                     <span className="text-cyan-400 font-bold uppercase flex items-center gap-1.5">
                       <Hash className="w-3.5 h-3.5" />
-                      STDIN INPUT BUFFER
+                      STDIN
                     </span>
-                    <span className="text-zinc-400 text-[10px]">Read by input() & Scanner</span>
                   </div>
                   <textarea
                     id="stdin-input-textarea"
@@ -910,9 +901,7 @@ export const CodeLab: React.FC = () => {
                   className="flex-1 p-3 bg-[#040609] overflow-y-auto font-mono text-xs text-zinc-300 space-y-1 select-text"
                 >
                   {!executionResult ? (
-                    <div className="text-zinc-500 italic">
-                      Ready. Click RUN PROGRAM to execute in browser runtime.
-                    </div>
+                    <div className="text-zinc-600 font-mono">▌</div>
                   ) : (
                     <>
                       {executionResult.stdout.map((line, idx) => (

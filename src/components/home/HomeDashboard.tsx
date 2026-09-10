@@ -1,272 +1,262 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Code2,
-  Bot,
-  Sparkles,
-  ExternalLink,
-  Trophy,
-  FileCode2,
-  CheckSquare,
-  Newspaper,
-  Quote,
-  TrendingUp,
-} from 'lucide-react';
-import { ModuleId, UserProgress, SavedProgram, UserProfile } from '../../types';
-import { StorageService } from '../../services/storage';
-import { TitanLogo } from '../common/TitanLogo';
-import { UserProfileModal } from './UserProfileModal';
+import React, { useState, useEffect } from "react";
+import { ExternalLink, Trophy, FileCode2, CheckSquare, RefreshCw, Loader2 } from "lucide-react";
+import { UserProfile, ModuleId } from "../../types";
+import { StorageService } from "../../services/storage";
+import { TitanLogo } from "../common/TitanLogo";
+import { UserProfileModal } from "./UserProfileModal";
 
-interface HomeDashboardProps {
-  progress?: UserProgress;
-  savedPrograms?: SavedProgram[];
-  onNavigate: (module: ModuleId) => void;
+interface NewsArticle {
+  id: number;
+  title: string;
+  url: string;
+  cover_image: string | null;
+  social_image: string | null;
+  description: string;
+  readable_publish_date: string;
+  tag_list: string[];
+  user: { name: string };
+  reading_time_minutes: number;
 }
 
-// --- Static Data ---
+interface QuoteData {
+  content: string;
+  author: string;
+}
 
-const TECH_NEWS = [
-  {
-    id: 1,
-    title: 'Google DeepMind releases Gemini 2.5 with native code execution',
-    source: 'TechCrunch',
-    time: '2h ago',
-    url: 'https://techcrunch.com',
-    tag: 'AI',
-    tagColor: 'text-purple-400 bg-purple-950/60 border-purple-800',
-  },
-  {
-    id: 2,
-    title: 'TypeScript 5.6 ships with new narrowing improvements',
-    source: 'The Verge',
-    time: '4h ago',
-    url: 'https://devblogs.microsoft.com/typescript/',
-    tag: 'Web',
-    tagColor: 'text-cyan-400 bg-cyan-950/60 border-cyan-800',
-  },
-  {
-    id: 3,
-    title: 'Linux kernel 6.11 merges new memory folios optimizations',
-    source: 'Phoronix',
-    time: '6h ago',
-    url: 'https://phoronix.com',
-    tag: 'Systems',
-    tagColor: 'text-emerald-400 bg-emerald-950/60 border-emerald-800',
-  },
-  {
-    id: 4,
-    title: 'LeetCode adds AI-powered hint system for premium users',
-    source: 'LeetCode Blog',
-    time: '8h ago',
-    url: 'https://leetcode.com',
-    tag: 'DSA',
-    tagColor: 'text-amber-400 bg-amber-950/60 border-amber-800',
-  },
-  {
-    id: 5,
-    title: 'Rust 1.81 lands with new error handling ergonomics',
-    source: 'This Week in Rust',
-    time: '12h ago',
-    url: 'https://this-week-in-rust.org',
-    tag: 'Languages',
-    tagColor: 'text-rose-400 bg-rose-950/60 border-rose-800',
-  },
-];
-
-const QUOTES = [
-  { text: 'First, solve the problem. Then, write the code.', author: 'John Johnson' },
-  { text: 'Code is like humor. When you have to explain it, it is bad.', author: 'Cory House' },
-  { text: 'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', author: 'Martin Fowler' },
-  { text: 'Programs must be written for people to read, and only incidentally for machines to execute.', author: 'Harold Abelson' },
-  { text: 'The best error message is the one that never shows up.', author: 'Thomas Fuchs' },
-  { text: 'Simplicity is the soul of efficiency.', author: 'Austin Freeman' },
-  { text: 'Make it work, make it right, make it fast.', author: 'Kent Beck' },
+const STATIC_QUOTES: QuoteData[] = [
+  { content: "The best way to predict the future is to invent it.", author: "Alan Kay" },
+  { content: "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.", author: "Martin Fowler" },
+  { content: "First, solve the problem. Then, write the code.", author: "John Johnson" },
+  { content: "Experience is the name everyone gives to their mistakes.", author: "Oscar Wilde" },
+  { content: "Programs must be written for people to read, and only incidentally for machines to execute.", author: "Harold Abelson" },
+  { content: "The most disastrous thing that you can ever learn is your first programming language.", author: "Alan Kay" },
+  { content: "Simplicity is the soul of efficiency.", author: "Austin Freeman" },
 ];
 
 const DEV_LINKS = [
-  { name: 'LinkedIn', url: 'https://linkedin.com', hoverColor: 'hover:border-blue-500/60', iconBg: 'bg-blue-950/60', iconText: 'in', iconColor: 'text-blue-400', labelHover: 'group-hover:text-blue-400' },
-  { name: 'LeetCode', url: 'https://leetcode.com', hoverColor: 'hover:border-amber-500/60', iconBg: 'bg-amber-950/60', iconText: 'LC', iconColor: 'text-amber-400', labelHover: 'group-hover:text-amber-400' },
-  { name: 'CodeChef', url: 'https://codechef.com', hoverColor: 'hover:border-orange-500/60', iconBg: 'bg-orange-950/60', iconText: 'CC', iconColor: 'text-orange-400', labelHover: 'group-hover:text-orange-400' },
-  { name: 'GitHub', url: 'https://github.com', hoverColor: 'hover:border-slate-400/60', iconBg: 'bg-slate-700/60', iconText: 'GH', iconColor: 'text-slate-300', labelHover: 'group-hover:text-slate-200' },
-  { name: 'Codeforces', url: 'https://codeforces.com', hoverColor: 'hover:border-red-500/60', iconBg: 'bg-red-950/60', iconText: 'CF', iconColor: 'text-red-400', labelHover: 'group-hover:text-red-400' },
-  { name: 'GeeksforGeeks', url: 'https://geeksforgeeks.org', hoverColor: 'hover:border-green-500/60', iconBg: 'bg-green-950/60', iconText: 'GG', iconColor: 'text-green-400', labelHover: 'group-hover:text-green-400' },
-  { name: 'MDN Web Docs', url: 'https://developer.mozilla.org', hoverColor: 'hover:border-cyan-500/60', iconBg: 'bg-cyan-950/60', iconText: 'MDN', iconColor: 'text-cyan-400', labelHover: 'group-hover:text-cyan-400' },
-  { name: 'Stack Overflow', url: 'https://stackoverflow.com', hoverColor: 'hover:border-yellow-500/60', iconBg: 'bg-yellow-950/60', iconText: 'SO', iconColor: 'text-yellow-400', labelHover: 'group-hover:text-yellow-400' },
+  { label: "GitHub", abbr: "GH", url: "https://github.com", bg: "bg-[#24292e]" },
+  { label: "LeetCode", abbr: "LC", url: "https://leetcode.com", bg: "bg-[#b45309]" },
+  { label: "LinkedIn", abbr: "LI", url: "https://linkedin.com", bg: "bg-[#0a66c2]" },
+  { label: "CodeChef", abbr: "CC", url: "https://codechef.com", bg: "bg-[#c84b0f]" },
+  { label: "Codeforces", abbr: "CF", url: "https://codeforces.com", bg: "bg-[#991b1b]" },
+  { label: "Stack Overflow", abbr: "SO", url: "https://stackoverflow.com", bg: "bg-[#8a4f00]" },
 ];
 
-// --- Component ---
+function timeAgo(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    const diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+    return Math.floor(diff / 86400) + "d ago";
+  } catch {
+    return dateStr;
+  }
+}
 
-export const HomeDashboard: React.FC<HomeDashboardProps> = ({ onNavigate }) => {
-  const [profile, setProfile] = useState<UserProfile>(() => StorageService.getUserProfile());
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
+interface HomeDashboardProps { onNavigate?: (mod: ModuleId) => void; }
+const HomeDashboard: React.FC<HomeDashboardProps> = ({ onNavigate: _onNavigate }) => {
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [newsLoading, setNewsLoading] = useState(true);
+  const [quote, setQuote] = useState<QuoteData>(STATIC_QUOTES[new Date().getDay() % STATIC_QUOTES.length]);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [solved, setSolved] = useState(0);
+  const [written, setWritten] = useState(0);
+  const [labs, setLabs] = useState(0);
 
-  const progress = useMemo(() => StorageService.getProgress(), []);
-  const programs = useMemo(() => StorageService.getPrograms(), []);
+  const fetchNews = async () => {
+    setNewsLoading(true);
+    try {
+      const res = await fetch(
+        "https://dev.to/api/articles?tag=programming&per_page=6&top=1"
+      );
+      const data: NewsArticle[] = await res.json();
+      setArticles(data.filter(a => a.title && (a.cover_image || a.social_image)).slice(0, 6));
+    } catch {
+      setArticles([]);
+    } finally {
+      setNewsLoading(false);
+    }
+  };
 
-  const quote = useMemo(() => {
-    const dayOfYear = Math.floor(
-      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
-    );
-    return QUOTES[dayOfYear % QUOTES.length];
+  useEffect(() => {
+    setUserProfile(StorageService.getUserProfile());
+    const prog = StorageService.getProgress();
+    setSolved(prog.assessmentsPassed || 0);
+    setLabs(prog.completedLabs?.length || 0);
+    const progs = StorageService.getPrograms();
+    setWritten(progs.length);
+
+    fetchNews();
+
+    fetch("https://api.quotable.io/random?tags=technology")
+      .then(r => r.json())
+      .then(d => { if (d.content) setQuote({ content: d.content, author: d.author }); })
+      .catch(() => {});
   }, []);
 
-  const stats = [
-    { label: 'Problems Solved', value: progress.assessmentsPassed, icon: <CheckSquare className="w-4 h-4" />, color: 'text-emerald-400' },
-    { label: 'Labs Completed', value: progress.completedLabs.length, icon: <Trophy className="w-4 h-4" />, color: 'text-amber-400' },
-    { label: 'Programs Written', value: programs.length, icon: <FileCode2 className="w-4 h-4" />, color: 'text-cyan-400' },
-    { label: 'Time (min)', value: progress.totalTimeMinutes, icon: <TrendingUp className="w-4 h-4" />, color: 'text-purple-400' },
-  ];
-
   return (
-    <div className="h-full w-full p-4 sm:p-6 station-bg overflow-y-auto flex flex-col gap-5 max-w-6xl mx-auto text-slate-200 font-sans">
+    <div className="flex flex-col h-full overflow-hidden bg-[#07090e] text-white font-sans">
 
-      {/* HEADER */}
-      <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <TitanLogo size={36} />
-          <div>
-            <h1 className="font-tech text-xl font-bold tracking-wider text-white">TITAN_OS</h1>
-            <p className="text-[11px] text-slate-500 font-mono">Your coding companion</p>
-          </div>
+      {/* ── Header ──────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between h-10 px-4 shrink-0 border-b border-zinc-800/60">
+        <div className="flex items-center gap-2">
+          <TitanLogo className="w-5 h-5 text-cyan-400" />
+          <span className="text-sm font-bold tracking-widest text-zinc-100">TITAN_OS</span>
         </div>
         <button
           type="button"
-          onClick={() => setIsProfileModalOpen(true)}
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 transition-all cursor-pointer"
+          onClick={() => setProfileOpen(true)}
+          className="w-7 h-7 rounded-full bg-cyan-900/60 border border-cyan-700/50 flex items-center justify-center text-xs font-bold text-cyan-300 hover:bg-cyan-800/60 transition-colors"
         >
-          <div className="w-7 h-7 rounded-full overflow-hidden border border-cyan-400/60 shrink-0">
-            <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
-          </div>
-          <span className="text-xs font-mono text-white hidden sm:block">{profile.name}</span>
+          {userProfile?.name?.charAt(0)?.toUpperCase() || "U"}
         </button>
-      </header>
+      </div>
 
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1">
+      {/* ── Main Layout: News (left) + Sidebar (right) ──────────────── */}
+      <div className="flex flex-1 min-h-0 gap-0 overflow-hidden">
 
-        {/* LEFT: Tech News */}
-        <div className="lg:col-span-2 flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <Newspaper className="w-4 h-4 text-cyan-400" />
-            <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Tech News</span>
+        {/* ── LEFT: News Grid ────────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-800/60 overflow-hidden">
+
+          {/* News header */}
+          <div className="flex items-center justify-between px-4 py-2 shrink-0 border-b border-zinc-800/40">
+            <span className="text-xs font-semibold text-zinc-400 tracking-wider uppercase">Tech News</span>
+            <button
+              type="button"
+              onClick={fetchNews}
+              title="Refresh news"
+              className="text-zinc-600 hover:text-zinc-400 transition-colors"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${newsLoading ? "animate-spin" : ""}`} />
+            </button>
           </div>
-          <div className="flex flex-col gap-2">
-            {TECH_NEWS.map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-900 transition-all group"
-              >
-                <div className="flex flex-col gap-1 flex-1 min-w-0">
-                  <p className="text-sm text-slate-200 group-hover:text-white transition-colors leading-snug">
-                    {item.title}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border ${item.tagColor}`}>
-                      {item.tag}
-                    </span>
-                    <span className="text-[11px] text-slate-500 font-mono">{item.source}</span>
-                    <span className="text-[11px] text-slate-600 font-mono">{item.time}</span>
-                  </div>
-                </div>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-600 group-hover:text-slate-400 shrink-0 mt-1 transition-colors" />
-              </a>
-            ))}
+
+          {/* Article card grid */}
+          <div className="flex-1 overflow-hidden p-3">
+            {newsLoading ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 className="w-6 h-6 text-zinc-600 animate-spin" />
+              </div>
+            ) : articles.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-zinc-600 gap-2">
+                <span className="text-sm">Could not load news</span>
+                <button type="button" onClick={fetchNews}
+                  className="text-xs text-cyan-500 hover:underline">Retry</button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 grid-rows-2 gap-2.5 h-full">
+                {articles.map(article => {
+                  const img = article.cover_image || article.social_image;
+                  return (
+                    <a
+                      key={article.id}
+                      href={article.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group flex flex-col overflow-hidden rounded-md border border-zinc-800/60 bg-[#0b0d13] hover:border-zinc-700 transition-all hover:shadow-lg hover:shadow-black/40 cursor-pointer"
+                    >
+                      {/* Article image */}
+                      <div className="relative overflow-hidden shrink-0" style={{ height: "45%" }}>
+                        {img ? (
+                          <img
+                            src={img}
+                            alt={article.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                            <span className="text-zinc-600 text-xs">No image</span>
+                          </div>
+                        )}
+                        {/* Tag chip overlay */}
+                        {article.tag_list?.[0] && (
+                          <span className="absolute top-1.5 left-1.5 text-[9px] bg-black/70 text-cyan-400 px-1.5 py-0.5 rounded uppercase font-mono">
+                            {article.tag_list[0]}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Article text */}
+                      <div className="flex flex-col flex-1 p-2 gap-1 min-h-0 overflow-hidden">
+                        <p className="text-[11px] font-semibold text-zinc-200 leading-snug line-clamp-2 group-hover:text-white transition-colors">
+                          {article.title}
+                        </p>
+                        <div className="flex items-center justify-between mt-auto pt-1 border-t border-zinc-800/50">
+                          <span className="text-[9px] text-zinc-500 truncate max-w-[70%]">{article.user.name}</span>
+                          <span className="text-[9px] text-zinc-600">{article.reading_time_minutes}m read</span>
+                        </div>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="flex flex-col gap-4">
+        {/* ── RIGHT: Sidebar (Quote + Dev Links + Progress) ──────────── */}
+        <div className="w-52 flex-shrink-0 flex flex-col overflow-hidden">
 
-          {/* Quote of the Day */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Quote className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Quote of the Day</span>
-            </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-purple-950/30 to-slate-900/60 border border-purple-900/40">
-              <p className="text-sm text-slate-300 italic leading-relaxed">"{quote.text}"</p>
-              <p className="text-[11px] text-purple-400 font-mono mt-2">— {quote.author}</p>
-            </div>
+          {/* Quote */}
+          <div className="p-3 border-b border-zinc-800/60 bg-[#0d0a1a] flex flex-col gap-1.5">
+            <span className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">Quote of the Day</span>
+            <p className="text-[11px] text-zinc-300 leading-snug italic line-clamp-4">
+              "{quote.content}"
+            </p>
+            <p className="text-[10px] text-purple-400/80 text-right">— {quote.author}</p>
           </div>
 
-          {/* Quick Access */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <ExternalLink className="w-4 h-4 text-cyan-400" />
-              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Quick Access</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {DEV_LINKS.map((link) => (
+          {/* Dev Links grid (2 × 3) */}
+          <div className="p-2 border-b border-zinc-800/60 flex-shrink-0">
+            <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider px-1 block mb-1.5">Quick Access</span>
+            <div className="grid grid-cols-2 gap-1.5">
+              {DEV_LINKS.map(link => (
                 <a
-                  key={link.name}
+                  key={link.label}
                   href={link.url}
                   target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex items-center gap-2 p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 transition-all ${link.hoverColor} group`}
+                  rel="noreferrer"
+                  className={"flex flex-col items-center justify-center py-2 rounded text-white cursor-pointer hover:brightness-110 transition-all " + link.bg}
                 >
-                  <div className={`w-7 h-7 rounded-md ${link.iconBg} flex items-center justify-center shrink-0`}>
-                    <span className={`text-[10px] font-bold font-mono ${link.iconColor}`}>{link.iconText}</span>
-                  </div>
-                  <span className={`text-xs font-mono text-slate-400 transition-colors truncate ${link.labelHover}`}>
-                    {link.name}
-                  </span>
+                  <span className="text-sm font-bold leading-none">{link.abbr}</span>
+                  <span className="text-[9px] mt-0.5 opacity-80">{link.label}</span>
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Progress Tracker */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Your Progress</span>
+          {/* Progress tiles (stacked) */}
+          <div className="flex-1 flex flex-col gap-0 overflow-hidden">
+            <div className="flex-1 flex flex-col items-center justify-center bg-[#022c22] border-b border-zinc-800/40 p-2">
+              <Trophy className="w-4 h-4 text-emerald-400 mb-1 opacity-70" />
+              <span className="text-3xl font-light text-white">{solved}</span>
+              <span className="text-[9px] text-emerald-400/70 uppercase tracking-wider mt-0.5">Solved</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {stats.map((stat) => (
-                <div key={stat.label} className="flex flex-col gap-1.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <div className={`${stat.color} flex items-center gap-1.5`}>
-                    {stat.icon}
-                    <span className="text-[10px] font-mono text-slate-500 leading-tight">{stat.label}</span>
-                  </div>
-                  <span className={`text-2xl font-tech font-bold ${stat.color}`}>{stat.value}</span>
-                </div>
-              ))}
+            <div className="flex-1 flex flex-col items-center justify-center bg-[#0a1628] border-b border-zinc-800/40 p-2">
+              <FileCode2 className="w-4 h-4 text-blue-400 mb-1 opacity-70" />
+              <span className="text-3xl font-light text-white">{written}</span>
+              <span className="text-[9px] text-blue-400/70 uppercase tracking-wider mt-0.5">Programs</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center bg-[#1a0a2e] p-2">
+              <CheckSquare className="w-4 h-4 text-violet-400 mb-1 opacity-70" />
+              <span className="text-3xl font-light text-white">{labs}</span>
+              <span className="text-[9px] text-violet-400/70 uppercase tracking-wider mt-0.5">Labs Done</span>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* BOTTOM ACTION BAR */}
-      <div className="pt-4 border-t border-slate-800/80 flex flex-wrap gap-2 items-center">
-        <span className="text-[11px] font-mono text-slate-500 mr-1">Jump to:</span>
-        {[
-          { id: 'codelab' as ModuleId, label: 'Code Editor', icon: <Code2 className="w-3.5 h-3.5" />, cls: 'hover:border-cyan-500/50 hover:text-cyan-300' },
-          { id: 'ai' as ModuleId, label: 'AI Tutor', icon: <Bot className="w-3.5 h-3.5" />, cls: 'hover:border-purple-500/50 hover:text-purple-300' },
-          { id: 'assessment' as ModuleId, label: 'Practice', icon: <Sparkles className="w-3.5 h-3.5" />, cls: 'hover:border-amber-500/50 hover:text-amber-300' },
-        ].map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onNavigate(item.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 transition-colors cursor-pointer ${item.cls}`}
-          >
-            {item.icon}
-            {item.label}
-          </button>
-        ))}
-      </div>
-
-      {/* USER PROFILE MODAL */}
       <UserProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        onProfileUpdated={(newProf) => {
-          setProfile(newProf);
-        }}
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onProfileUpdated={p => setUserProfile(p)}
       />
     </div>
   );
 };
+
+export { HomeDashboard };
+export default HomeDashboard;

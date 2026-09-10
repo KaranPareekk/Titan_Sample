@@ -778,16 +778,8 @@ Return JSON:
             <Brain className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-tech text-xs font-bold text-zinc-200 tracking-wide">
-                PRACTICE & SKILL ASSESSMENTS
-              </span>
-              <span className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-800 text-[10px] font-mono text-purple-300 font-bold">
-                AI EVALUATOR READY
-              </span>
-            </div>
-            <span className="block text-[10px] font-mono text-zinc-400">
-              Interactive challenges for beginners • Advanced systems algorithms • Instant feedback
+            <span className="font-tech text-xs font-bold text-zinc-200 tracking-wide">
+              PRACTICE & ASSESSMENT
             </span>
           </div>
         </div>
@@ -826,7 +818,7 @@ Return JSON:
       {assessmentMode === 'ai_coding' && (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Left Column: Level, Track & Problem Description */}
-          <div className="w-full lg:w-5/12 bg-[#090d14] border-b lg:border-b-0 lg:border-r border-zinc-800 flex flex-col overflow-hidden">
+          <div className="w-full lg:w-2/5 bg-[#090d14] border-b lg:border-b-0 lg:border-r border-zinc-800 flex flex-col overflow-hidden">
             {/* Level & Track Selector */}
             <div className="p-3 border-b border-zinc-800 bg-[#0c1017] flex flex-col gap-2.5 shrink-0 font-mono text-xs">
               {/* Level Tab Toggle: Beginner vs Advanced */}
@@ -1016,7 +1008,7 @@ Return JSON:
           </div>
 
           {/* Right Column: Code Editor & AI Evaluation Report */}
-          <div className="w-full lg:w-7/12 flex flex-col bg-[#07090e] overflow-hidden">
+          <div className="w-full lg:w-3/5 flex flex-col bg-[#07090e] overflow-hidden">
             {/* Editor Subheader */}
             <div className="h-9 bg-[#0b0f17] border-b border-zinc-800 px-3 flex items-center justify-between text-[11px] font-mono text-zinc-400 shrink-0">
               <div className="flex items-center gap-2">
@@ -1038,8 +1030,8 @@ Return JSON:
               </button>
             </div>
 
-            {/* Code Solution Textarea */}
-            <div className="h-1/2 flex border-b border-zinc-800 bg-[#05070a] overflow-hidden font-mono text-xs">
+            {/* Code Solution Textarea — takes most of the space */}
+            <div className="flex-1 flex border-b border-zinc-800 bg-[#05070a] overflow-hidden font-mono text-xs min-h-0">
               <div className="w-10 bg-[#080b11] border-r border-zinc-800/80 py-3 text-right pr-2 text-zinc-600 select-none overflow-hidden shrink-0">
                 {Array.from({ length: Math.max(1, userCode.split('\n').length) }).map((_, i) => (
                   <div key={i} className="leading-relaxed">
@@ -1057,8 +1049,8 @@ Return JSON:
               />
             </div>
 
-            {/* AI Evaluation Report Pane */}
-            <div className="h-1/2 flex flex-col bg-[#0a0d14] overflow-hidden">
+            {/* AI Evaluation Report Pane — compact */}
+            <div className="h-56 flex-shrink-0 flex flex-col bg-[#0a0d14] overflow-hidden border-t border-zinc-800">
               <div className="h-8 bg-[#0d111a] border-b border-zinc-800 px-3 flex items-center justify-between text-[11px] font-mono text-zinc-400 shrink-0">
                 <span className="font-bold text-slate-300 uppercase flex items-center gap-1.5">
                   <Brain className="w-3.5 h-3.5 text-purple-400" />
@@ -1081,12 +1073,9 @@ Return JSON:
 
               <div className="flex-1 overflow-y-auto p-4 font-mono text-xs space-y-3 select-text">
                 {!evaluationResult ? (
-                  <div className="h-full flex flex-col items-center justify-center text-zinc-400 gap-2 text-center p-4">
-                    <Sparkles className="w-8 h-8 opacity-50 text-purple-400" />
-                    <span className="text-xs">Click <strong>"RUN & CHECK WITH AI TUTOR"</strong> above to test your code.</span>
-                    <span className="text-[11px] text-zinc-500 max-w-sm">
-                      Our tutor will inspect your code logic, check for errors, and provide friendly step-by-step guidance!
-                    </span>
+                  <div className="h-full flex items-center justify-center text-zinc-500 text-xs font-mono gap-2">
+                    <Sparkles className="w-4 h-4 opacity-40 text-purple-400" />
+                    Click <strong className="text-zinc-400">RUN & CHECK</strong> to evaluate your code.
                   </div>
                 ) : (
                   <div className="space-y-3">
