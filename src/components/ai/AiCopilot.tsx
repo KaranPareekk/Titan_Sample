@@ -92,12 +92,22 @@ export const AiCopilot: React.FC = () => {
     setBusy(true);
     setError(null);
     try {
+      const nowStr = new Date().toLocaleString("en-US", {
+        dateStyle: "full",
+        timeStyle: "short",
+      });
       const sys = mode === "beginner"
-        ? "You are a friendly, patient programming tutor. Use simple language, real-world analogies, and short code examples. Format your answers in Markdown."
-        : "You are a senior software engineer. Give deep technical analysis with algorithms, complexity, and system design insights. Format in Markdown.";
+        ? `You are Titan AI, a smart, direct, and concise AI assistant.
+Current date and time: ${nowStr}.
+Answer questions directly, accurately, and conversationally.
+Do NOT over-explain or write unsolicited code examples/tutorials unless specifically asked.
+If asked for factual information like date, time, definitions, or quick facts, answer in 1-2 sentences directly.`
+        : `You are Titan AI, an efficient senior engineer assistant.
+Current date and time: ${nowStr}.
+Be direct, sharp, and concise. Provide technical depth only when requested, without unnecessary filler.`;
       const contents: { role: string; parts: { text: string }[] }[] = [
         { role: "user", parts: [{ text: sys }] },
-        { role: "model", parts: [{ text: "Understood." }] },
+        { role: "model", parts: [{ text: "Understood. I will answer directly, concisely, and accurately without unnecessary explanations." }] },
       ];
       for (const m of next.filter(x => x.id !== "w0" && x.id !== userMsg.id)) {
         contents.push({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.text }] });
