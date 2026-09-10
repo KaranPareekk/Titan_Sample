@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, ReactNode } from "react";
+import React, { useState, useEffect, useRef, ReactNode } from "react";
 import { Bot, Send, Trash2, Key, Sparkles, Copy, Check, ExternalLink, AlertCircle, GraduationCap, Zap } from "lucide-react";
 
 const STORAGE_KEY_MSGS = "titan_chat_messages";
@@ -103,9 +103,12 @@ export const AiCopilot: React.FC = () => {
         contents.push({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.text }] });
       }
       contents.push({ role: "user", parts: [{ text: q }] });
-      const resp = await fetch(GEMINI_ENDPOINT + apiKey, {
+      const resp = await fetch(GEMINI_ENDPOINT + encodeURIComponent(apiKey), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
         body: JSON.stringify({ contents, generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } }),
       });
       const data = await resp.json();
