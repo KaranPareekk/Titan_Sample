@@ -164,24 +164,33 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({ onOpenCodeLab }) =
                 No assessment attempts logged. Take a quiz in Assessment Terminal to record your engineering scores.
               </div>
             ) : (
-              assessments.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between font-mono text-xs"
-                >
-                  <div>
-                    <div className="font-bold text-zinc-200">
-                      Score: {item.score} / {item.totalQuestions} ({Math.round((item.score / item.totalQuestions) * 100)}%)
+              assessments.map((item, idx) => {
+                const total = item.total ?? item.totalQuestions ?? 10;
+                const score = item.score ?? 0;
+                const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+                const timestamp = item.timestamp ?? item.completedAt ?? Date.now();
+                const displayMode = item.mode ?? item.domain ?? 'Assessment';
+                const isPassed = pct >= 70;
+
+                return (
+                  <div
+                    key={item.id || idx}
+                    className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between font-mono text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-zinc-200">
+                        Score: {score} / {total} ({pct}%)
+                      </div>
+                      <div className="text-[10px] text-zinc-400 uppercase">
+                        Mode: {displayMode} • Date: {new Date(timestamp).toLocaleDateString()}
+                      </div>
                     </div>
-                    <div className="text-[10px] text-zinc-400 uppercase">
-                      Mode: {item.mode} • Date: {new Date(item.completedAt).toLocaleDateString()}
-                    </div>
+                    <span className={isPassed ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                      {isPassed ? 'PASSED' : 'PRACTICING'}
+                    </span>
                   </div>
-                  <span className="text-emerald-400 font-bold">
-                    {item.score >= 5 ? 'PASSED' : 'PRACTICING'}
-                  </span>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

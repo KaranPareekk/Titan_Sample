@@ -10,16 +10,18 @@ import { MemoryLab } from './components/memory/MemoryLab';
 import { CircuitLab } from './components/circuits/CircuitLab';
 import { CodeLab } from './components/codelab/CodeLab';
 import { DbmsLab } from './components/dbms/DbmsLab';
-import { GamesHub } from './components/games/GamesHub';
-import { KnowledgeBase } from './components/knowledge/KnowledgeBase';
 import { AssessmentLab } from './components/assessment/AssessmentLab';
 import { AiCopilot } from './components/ai/AiCopilot';
 import { WorkspaceView } from './components/workspace/WorkspaceView';
+import { CloudinaryDock } from './components/cloudinary/CloudinaryDock';
+import { WelcomeSplash } from './components/common/WelcomeSplash';
 
 export default function App() {
+  const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [currentModule, setCurrentModule] = useState<ModuleId>('home');
   const [settings, setSettings] = useState<SystemSettings>(() => StorageService.getSettings());
   const [uptimeSec, setUptimeSec] = useState<number>(0);
+  const [isCloudinaryDockOpen, setIsCloudinaryDockOpen] = useState<boolean>(false);
 
   // System uptime counter
   useEffect(() => {
@@ -61,7 +63,12 @@ export default function App() {
   const renderActiveModule = () => {
     switch (currentModule) {
       case 'home':
-        return <HomeDashboard onNavigate={(mod) => setCurrentModule(mod)} />;
+        return (
+          <HomeDashboard
+            onNavigate={(mod) => setCurrentModule(mod)}
+            onOpenCloudinary={() => setIsCloudinaryDockOpen(true)}
+          />
+        );
       case 'dsa':
         return <DsaLab />;
       case 'memory':
@@ -72,10 +79,6 @@ export default function App() {
         return <CodeLab />;
       case 'dbms':
         return <DbmsLab />;
-      case 'games':
-        return <GamesHub />;
-      case 'knowledge':
-        return <KnowledgeBase />;
       case 'assessment':
         return <AssessmentLab />;
       case 'ai':
@@ -84,14 +87,23 @@ export default function App() {
       case 'workspace':
         return <WorkspaceView onOpenCodeLab={() => setCurrentModule('codelab')} />;
       default:
-        return <HomeDashboard onNavigate={(mod) => setCurrentModule(mod)} />;
+        return (
+          <HomeDashboard
+            onNavigate={(mod) => setCurrentModule(mod)}
+            onOpenCloudinary={() => setIsCloudinaryDockOpen(true)}
+          />
+        );
     }
   };
+
+  if (!hasEntered) {
+    return <WelcomeSplash onEnter={() => setHasEntered(true)} />;
+  }
 
   return (
     <div
       id="titan-os-viewport"
-      className={`h-screen w-screen flex flex-col bg-[#07090E] text-slate-300 overflow-hidden font-sans ${
+      className={`h-screen w-screen flex flex-col bg-[#0c0717] text-purple-100 overflow-hidden font-sans ${
         settings.theme === 'light' ? 'theme-light' : 'theme-dark'
       }`}
     >
@@ -101,6 +113,9 @@ export default function App() {
         settings={settings}
         onUpdateSettings={handleUpdateSettings}
         systemUptimeSec={uptimeSec}
+        isCloudinaryOpen={isCloudinaryDockOpen}
+        onToggleCloudinary={() => setIsCloudinaryDockOpen(!isCloudinaryDockOpen)}
+        onNavigate={(mod) => setCurrentModule(mod)}
       />
 
       {/* Main Workspace Frame */}
@@ -116,7 +131,7 @@ export default function App() {
         {/* Primary Interactive Module View with ErrorBoundary */}
         <main
           id="titan-main-stage"
-          className="flex-1 h-full overflow-hidden relative bg-[#07090E]"
+          className="flex-1 h-full overflow-hidden relative bg-[#0c0717]"
         >
           <ErrorBoundary
             key={currentModule}
@@ -126,27 +141,33 @@ export default function App() {
             {renderActiveModule()}
           </ErrorBoundary>
         </main>
+
+        {/* In-App Cloudinary Split-Screen Dock */}
+        <CloudinaryDock
+          isOpen={isCloudinaryDockOpen}
+          onClose={() => setIsCloudinaryDockOpen(false)}
+        />
       </div>
 
-      {/* Clean Minimalism Telemetry Footer */}
+      {/* Telemetry Footer */}
       <footer
         id="titan-status-footer"
-        className="h-8 bg-[#07090E] border-t border-[#1E293B] px-4 flex items-center justify-between text-[10px] terminal-font shrink-0 select-none z-20"
+        className="h-8 bg-[#0c0717] border-t border-purple-900/40 px-4 flex items-center justify-between text-[10px] terminal-font shrink-0 select-none z-20"
       >
         <div className="flex items-center gap-4">
-          <span className="text-cyan-500 uppercase">LOCATION: WORKSTATION_{currentModule.toUpperCase()}</span>
-          <span className="text-slate-600">|</span>
-          <span className="text-slate-400">RAM_USAGE: 4.2GB / 8.0GB</span>
-          <span className="text-slate-600 hidden md:inline">|</span>
-          <span className="text-slate-500 hidden md:inline">KERNEL: TITAN_v1.0.4_RELEASE</span>
+          <span className="text-pink-400 font-semibold uppercase">LOCATION: WORKSTATION_{currentModule.toUpperCase()}</span>
+          <span className="text-purple-900">|</span>
+          <span className="text-purple-300/70">RAM_USAGE: 4.2GB / 8.0GB</span>
+          <span className="text-purple-900 hidden md:inline">|</span>
+          <span className="text-purple-400/60 hidden md:inline">KERNEL: TITAN_v1.0.4_RELEASE</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-emerald-400 flex items-center gap-1.5">
+          <span className="text-emerald-400 flex items-center gap-1.5 font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             SYNCED
           </span>
-          <span className="text-slate-600">|</span>
-          <span className="text-slate-500 font-mono">© 2026 TITAN_ENGINEERING_INDUSTRIES</span>
+          <span className="text-purple-900">|</span>
+          <span className="text-purple-400/50">© 2026 TITAN_ENGINEERING_INDUSTRIES</span>
         </div>
       </footer>
     </div>

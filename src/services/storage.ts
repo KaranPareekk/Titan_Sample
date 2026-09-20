@@ -423,6 +423,8 @@ export class StorageService {
     localStorage.removeItem(STORAGE_KEYS.PROGRESS);
     localStorage.removeItem(STORAGE_KEYS.ATTEMPTS);
     localStorage.removeItem(STORAGE_KEYS.SETTINGS);
+    localStorage.removeItem(STORAGE_KEYS.CODE_FILES);
+    localStorage.removeItem(STORAGE_KEYS.AI_CHATS);
   }
 
   static clearAll(): void {
@@ -449,7 +451,10 @@ export class StorageService {
       difficulty: assessment.difficulty || 'medium',
       score: assessment.score,
       total: assessment.totalQuestions,
+      totalQuestions: assessment.totalQuestions,
       timestamp: assessment.completedAt,
+      completedAt: assessment.completedAt,
+      mode: assessment.mode,
       timeSpentSec: assessment.timeSpentSec ?? 60,
       weakTopics: assessment.weakTopics || [],
     });

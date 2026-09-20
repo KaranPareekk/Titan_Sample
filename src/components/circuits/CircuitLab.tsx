@@ -34,6 +34,366 @@ const PRESET_HALF_ADDER: { gates: LogicGate[]; wires: LogicWire[] } = {
   ],
 };
 
+const PRESET_FULL_ADDER: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    { id: 'fa_a', type: 'INPUT', x: 50, y: 50, width: 80, height: 50, inputs: [], output: true, label: 'IN A' },
+    { id: 'fa_b', type: 'INPUT', x: 50, y: 140, width: 80, height: 50, inputs: [], output: true, label: 'IN B' },
+    { id: 'fa_cin', type: 'INPUT', x: 50, y: 250, width: 80, height: 50, inputs: [], output: false, label: 'C_IN' },
+    { id: 'fa_xor1', type: 'XOR', x: 220, y: 50, width: 90, height: 65, inputs: [true, true], output: false, label: 'XOR 1' },
+    { id: 'fa_xor2', type: 'XOR', x: 390, y: 80, width: 90, height: 65, inputs: [false, false], output: false, label: 'XOR 2' },
+    { id: 'fa_and1', type: 'AND', x: 220, y: 150, width: 90, height: 65, inputs: [true, true], output: true, label: 'AND 1' },
+    { id: 'fa_and2', type: 'AND', x: 390, y: 220, width: 90, height: 65, inputs: [false, false], output: false, label: 'AND 2' },
+    { id: 'fa_or', type: 'OR', x: 550, y: 180, width: 90, height: 65, inputs: [true, false], output: true, label: 'OR' },
+    { id: 'fa_sum', type: 'OUTPUT', x: 560, y: 80, width: 90, height: 50, inputs: [false], output: false, label: 'SUM (S)' },
+    { id: 'fa_cout', type: 'OUTPUT', x: 700, y: 180, width: 90, height: 50, inputs: [true], output: true, label: 'C_OUT' },
+  ],
+  wires: [
+    { id: 'fa_w1', fromGateId: 'fa_a', fromPinIndex: 0, toGateId: 'fa_xor1', toPinIndex: 0 },
+    { id: 'fa_w2', fromGateId: 'fa_b', fromPinIndex: 0, toGateId: 'fa_xor1', toPinIndex: 1 },
+    { id: 'fa_w3', fromGateId: 'fa_a', fromPinIndex: 0, toGateId: 'fa_and1', toPinIndex: 0 },
+    { id: 'fa_w4', fromGateId: 'fa_b', fromPinIndex: 0, toGateId: 'fa_and1', toPinIndex: 1 },
+    { id: 'fa_w5', fromGateId: 'fa_xor1', fromPinIndex: 0, toGateId: 'fa_xor2', toPinIndex: 0 },
+    { id: 'fa_w6', fromGateId: 'fa_cin', fromPinIndex: 0, toGateId: 'fa_xor2', toPinIndex: 1 },
+    { id: 'fa_w7', fromGateId: 'fa_xor1', fromPinIndex: 0, toGateId: 'fa_and2', toPinIndex: 0 },
+    { id: 'fa_w8', fromGateId: 'fa_cin', fromPinIndex: 0, toGateId: 'fa_and2', toPinIndex: 1 },
+    { id: 'fa_w9', fromGateId: 'fa_xor2', fromPinIndex: 0, toGateId: 'fa_sum', toPinIndex: 0 },
+    { id: 'fa_w10', fromGateId: 'fa_and1', fromPinIndex: 0, toGateId: 'fa_or', toPinIndex: 0 },
+    { id: 'fa_w11', fromGateId: 'fa_and2', fromPinIndex: 0, toGateId: 'fa_or', toPinIndex: 1 },
+    { id: 'fa_w12', fromGateId: 'fa_or', fromPinIndex: 0, toGateId: 'fa_cout', toPinIndex: 0 },
+  ],
+};
+
+const PRESET_MUX_2TO1: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    { id: 'mux_d0', type: 'INPUT', x: 60, y: 50, width: 80, height: 50, inputs: [], output: true, label: 'DATA 0' },
+    { id: 'mux_sel', type: 'INPUT', x: 60, y: 140, width: 80, height: 50, inputs: [], output: false, label: 'SELECT' },
+    { id: 'mux_d1', type: 'INPUT', x: 60, y: 230, width: 80, height: 50, inputs: [], output: false, label: 'DATA 1' },
+    { id: 'mux_not', type: 'NOT', x: 210, y: 100, width: 85, height: 55, inputs: [false], output: true, label: 'NOT SEL' },
+    { id: 'mux_and0', type: 'AND', x: 360, y: 55, width: 90, height: 65, inputs: [true, true], output: true, label: 'AND 0' },
+    { id: 'mux_and1', type: 'AND', x: 360, y: 200, width: 90, height: 65, inputs: [false, false], output: false, label: 'AND 1' },
+    { id: 'mux_or', type: 'OR', x: 520, y: 125, width: 90, height: 65, inputs: [true, false], output: true, label: 'OR' },
+    { id: 'mux_out', type: 'OUTPUT', x: 680, y: 130, width: 90, height: 50, inputs: [true], output: true, label: 'MUX OUT' },
+  ],
+  wires: [
+    { id: 'mw1', fromGateId: 'mux_sel', fromPinIndex: 0, toGateId: 'mux_not', toPinIndex: 0 },
+    { id: 'mw2', fromGateId: 'mux_d0', fromPinIndex: 0, toGateId: 'mux_and0', toPinIndex: 0 },
+    { id: 'mw3', fromGateId: 'mux_not', fromPinIndex: 0, toGateId: 'mux_and0', toPinIndex: 1 },
+    { id: 'mw4', fromGateId: 'mux_sel', fromPinIndex: 0, toGateId: 'mux_and1', toPinIndex: 0 },
+    { id: 'mw5', fromGateId: 'mux_d1', fromPinIndex: 0, toGateId: 'mux_and1', toPinIndex: 1 },
+    { id: 'mw6', fromGateId: 'mux_and0', fromPinIndex: 0, toGateId: 'mux_or', toPinIndex: 0 },
+    { id: 'mw7', fromGateId: 'mux_and1', fromPinIndex: 0, toGateId: 'mux_or', toPinIndex: 1 },
+    { id: 'mw8', fromGateId: 'mux_or', fromPinIndex: 0, toGateId: 'mux_out', toPinIndex: 0 },
+  ],
+};
+
+const PRESET_SR_LATCH: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    { id: 'sr_r', type: 'INPUT', x: 60, y: 60, width: 80, height: 50, inputs: [], output: false, label: 'RESET (R)' },
+    { id: 'sr_s', type: 'INPUT', x: 60, y: 220, width: 80, height: 50, inputs: [], output: true, label: 'SET (S)' },
+    { id: 'sr_nor1', type: 'NOR', x: 260, y: 60, width: 90, height: 65, inputs: [false, false], output: true, label: 'NOR Top' },
+    { id: 'sr_nor2', type: 'NOR', x: 260, y: 220, width: 90, height: 65, inputs: [true, true], output: false, label: 'NOR Bot' },
+    { id: 'sr_q', type: 'OUTPUT', x: 460, y: 65, width: 90, height: 50, inputs: [true], output: true, label: 'STATE Q' },
+    { id: 'sr_qbar', type: 'OUTPUT', x: 460, y: 225, width: 90, height: 50, inputs: [false], output: false, label: "STATE Q'" },
+  ],
+  wires: [
+    { id: 'srw1', fromGateId: 'sr_r', fromPinIndex: 0, toGateId: 'sr_nor1', toPinIndex: 0 },
+    { id: 'srw2', fromGateId: 'sr_nor2', fromPinIndex: 0, toGateId: 'sr_nor1', toPinIndex: 1 },
+    { id: 'srw3', fromGateId: 'sr_nor1', fromPinIndex: 0, toGateId: 'sr_nor2', toPinIndex: 0 },
+    { id: 'srw4', fromGateId: 'sr_s', fromPinIndex: 0, toGateId: 'sr_nor2', toPinIndex: 1 },
+    { id: 'srw5', fromGateId: 'sr_nor1', fromPinIndex: 0, toGateId: 'sr_q', toPinIndex: 0 },
+    { id: 'srw6', fromGateId: 'sr_nor2', fromPinIndex: 0, toGateId: 'sr_qbar', toPinIndex: 0 },
+  ],
+};
+
+const PRESET_COMPARATOR_2BIT: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    { id: 'cmp_a0', type: 'INPUT', x: 60, y: 40, width: 80, height: 50, inputs: [], output: true, label: 'A[0]' },
+    { id: 'cmp_b0', type: 'INPUT', x: 60, y: 110, width: 80, height: 50, inputs: [], output: true, label: 'B[0]' },
+    { id: 'cmp_a1', type: 'INPUT', x: 60, y: 200, width: 80, height: 50, inputs: [], output: false, label: 'A[1]' },
+    { id: 'cmp_b1', type: 'INPUT', x: 60, y: 270, width: 80, height: 50, inputs: [], output: false, label: 'B[1]' },
+    { id: 'cmp_xnor0', type: 'XNOR', x: 240, y: 70, width: 90, height: 65, inputs: [true, true], output: true, label: 'Bit 0 Equiv' },
+    { id: 'cmp_xnor1', type: 'XNOR', x: 240, y: 230, width: 90, height: 65, inputs: [false, false], output: true, label: 'Bit 1 Equiv' },
+    { id: 'cmp_and', type: 'AND', x: 420, y: 150, width: 90, height: 65, inputs: [true, true], output: true, label: 'Both Equal' },
+    { id: 'cmp_out', type: 'OUTPUT', x: 580, y: 155, width: 90, height: 50, inputs: [true], output: true, label: 'A == B' },
+  ],
+  wires: [
+    { id: 'cmpw1', fromGateId: 'cmp_a0', fromPinIndex: 0, toGateId: 'cmp_xnor0', toPinIndex: 0 },
+    { id: 'cmpw2', fromGateId: 'cmp_b0', fromPinIndex: 0, toGateId: 'cmp_xnor0', toPinIndex: 1 },
+    { id: 'cmpw3', fromGateId: 'cmp_a1', fromPinIndex: 0, toGateId: 'cmp_xnor1', toPinIndex: 0 },
+    { id: 'cmpw4', fromGateId: 'cmp_b1', fromPinIndex: 0, toGateId: 'cmp_xnor1', toPinIndex: 1 },
+    { id: 'cmpw5', fromGateId: 'cmp_xnor0', fromPinIndex: 0, toGateId: 'cmp_and', toPinIndex: 0 },
+    { id: 'cmpw6', fromGateId: 'cmp_xnor1', fromPinIndex: 0, toGateId: 'cmp_and', toPinIndex: 1 },
+    { id: 'cmpw7', fromGateId: 'cmp_and', fromPinIndex: 0, toGateId: 'cmp_out', toPinIndex: 0 },
+  ],
+};
+
+// --- Advanced Complex Digital Computational Systems ---
+
+const PRESET_ALU_PROCESSOR: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    // Operands and Control Inputs
+    { id: 'alu_a', type: 'INPUT', x: 50, y: 50, width: 85, height: 50, inputs: [], output: true, label: 'BUS A' },
+    { id: 'alu_b', type: 'INPUT', x: 50, y: 140, width: 85, height: 50, inputs: [], output: true, label: 'BUS B' },
+    { id: 'alu_cin', type: 'INPUT', x: 50, y: 230, width: 85, height: 50, inputs: [], output: false, label: 'CARRY IN' },
+    { id: 'alu_op', type: 'INPUT', x: 50, y: 320, width: 85, height: 50, inputs: [], output: false, label: 'OP: 0=ADD 1=LOGIC' },
+
+    // Arithmetic Core (Full Adder Stage)
+    { id: 'alu_xor1', type: 'XOR', x: 230, y: 50, width: 90, height: 65, inputs: [true, true], output: false, label: 'A ⊕ B' },
+    { id: 'alu_xor2', type: 'XOR', x: 380, y: 65, width: 90, height: 65, inputs: [false, false], output: false, label: 'SUM CORE' },
+    { id: 'alu_and1', type: 'AND', x: 230, y: 140, width: 90, height: 65, inputs: [true, true], output: true, label: 'A · B' },
+    { id: 'alu_and2', type: 'AND', x: 380, y: 170, width: 90, height: 65, inputs: [false, false], output: false, label: 'CIN · PROP' },
+    { id: 'alu_or_c', type: 'OR', x: 520, y: 155, width: 90, height: 65, inputs: [true, false], output: true, label: 'CARRY GEN' },
+
+    // Logic Function Core
+    { id: 'alu_logic_xor', type: 'XOR', x: 230, y: 260, width: 90, height: 65, inputs: [true, true], output: false, label: 'LOGIC XOR' },
+
+    // Operation Multiplexer Selection
+    { id: 'alu_not_op', type: 'NOT', x: 230, y: 350, width: 80, height: 50, inputs: [false], output: true, label: 'NOT OP' },
+    { id: 'alu_mux_and0', type: 'AND', x: 550, y: 65, width: 90, height: 65, inputs: [false, true], output: false, label: 'ARITH PASS' },
+    { id: 'alu_mux_and1', type: 'AND', x: 550, y: 280, width: 90, height: 65, inputs: [false, false], output: false, label: 'LOGIC PASS' },
+    { id: 'alu_mux_or', type: 'OR', x: 700, y: 175, width: 90, height: 65, inputs: [false, false], output: false, label: 'ALU MUX' },
+
+    // Zero Flag Detection Logic
+    { id: 'alu_zero_nor', type: 'NOR', x: 840, y: 80, width: 90, height: 65, inputs: [false, false], output: true, label: 'ZERO DETECT' },
+
+    // Outputs
+    { id: 'alu_out_res', type: 'OUTPUT', x: 860, y: 180, width: 95, height: 50, inputs: [false], output: false, label: 'ALU RESULT' },
+    { id: 'alu_out_cout', type: 'OUTPUT', x: 700, y: 50, width: 95, height: 50, inputs: [true], output: true, label: 'CARRY OUT' },
+    { id: 'alu_out_zero', type: 'OUTPUT', x: 990, y: 85, width: 95, height: 50, inputs: [true], output: true, label: 'FLAG: ZERO' },
+  ],
+  wires: [
+    { id: 'alw1', fromGateId: 'alu_a', fromPinIndex: 0, toGateId: 'alu_xor1', toPinIndex: 0 },
+    { id: 'alw2', fromGateId: 'alu_b', fromPinIndex: 0, toGateId: 'alu_xor1', toPinIndex: 1 },
+    { id: 'alw3', fromGateId: 'alu_xor1', fromPinIndex: 0, toGateId: 'alu_xor2', toPinIndex: 0 },
+    { id: 'alw4', fromGateId: 'alu_cin', fromPinIndex: 0, toGateId: 'alu_xor2', toPinIndex: 1 },
+
+    { id: 'alw5', fromGateId: 'alu_a', fromPinIndex: 0, toGateId: 'alu_and1', toPinIndex: 0 },
+    { id: 'alw6', fromGateId: 'alu_b', fromPinIndex: 0, toGateId: 'alu_and1', toPinIndex: 1 },
+    { id: 'alw7', fromGateId: 'alu_xor1', fromPinIndex: 0, toGateId: 'alu_and2', toPinIndex: 0 },
+    { id: 'alw8', fromGateId: 'alu_cin', fromPinIndex: 0, toGateId: 'alu_and2', toPinIndex: 1 },
+
+    { id: 'alw9', fromGateId: 'alu_and1', fromPinIndex: 0, toGateId: 'alu_or_c', toPinIndex: 0 },
+    { id: 'alw10', fromGateId: 'alu_and2', fromPinIndex: 0, toGateId: 'alu_or_c', toPinIndex: 1 },
+    { id: 'alw11', fromGateId: 'alu_or_c', fromPinIndex: 0, toGateId: 'alu_out_cout', toPinIndex: 0 },
+
+    { id: 'alw12', fromGateId: 'alu_a', fromPinIndex: 0, toGateId: 'alu_logic_xor', toPinIndex: 0 },
+    { id: 'alw13', fromGateId: 'alu_b', fromPinIndex: 0, toGateId: 'alu_logic_xor', toPinIndex: 1 },
+
+    { id: 'alw14', fromGateId: 'alu_op', fromPinIndex: 0, toGateId: 'alu_not_op', toPinIndex: 0 },
+    { id: 'alw15', fromGateId: 'alu_xor2', fromPinIndex: 0, toGateId: 'alu_mux_and0', toPinIndex: 0 },
+    { id: 'alw16', fromGateId: 'alu_not_op', fromPinIndex: 0, toGateId: 'alu_mux_and0', toPinIndex: 1 },
+
+    { id: 'alw17', fromGateId: 'alu_logic_xor', fromPinIndex: 0, toGateId: 'alu_mux_and1', toPinIndex: 0 },
+    { id: 'alw18', fromGateId: 'alu_op', fromPinIndex: 0, toGateId: 'alu_mux_and1', toPinIndex: 1 },
+
+    { id: 'alw19', fromGateId: 'alu_mux_and0', fromPinIndex: 0, toGateId: 'alu_mux_or', toPinIndex: 0 },
+    { id: 'alw20', fromGateId: 'alu_mux_and1', fromPinIndex: 0, toGateId: 'alu_mux_or', toPinIndex: 1 },
+    { id: 'alw21', fromGateId: 'alu_mux_or', fromPinIndex: 0, toGateId: 'alu_out_res', toPinIndex: 0 },
+
+    { id: 'alw22', fromGateId: 'alu_mux_or', fromPinIndex: 0, toGateId: 'alu_zero_nor', toPinIndex: 0 },
+    { id: 'alw23', fromGateId: 'alu_out_cout', fromPinIndex: 0, toGateId: 'alu_zero_nor', toPinIndex: 1 },
+    { id: 'alw24', fromGateId: 'alu_zero_nor', fromPinIndex: 0, toGateId: 'alu_out_zero', toPinIndex: 0 },
+  ],
+};
+
+const PRESET_CALCULATOR_ARITHMETIC: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    // Operands
+    { id: 'calc_a', type: 'INPUT', x: 50, y: 60, width: 85, height: 50, inputs: [], output: true, label: 'OPERAND A' },
+    { id: 'calc_b', type: 'INPUT', x: 50, y: 170, width: 85, height: 50, inputs: [], output: true, label: 'OPERAND B' },
+    { id: 'calc_sub', type: 'INPUT', x: 50, y: 280, width: 85, height: 50, inputs: [], output: false, label: 'SUB/ADD (1/0)' },
+
+    // Inverter for subtraction (B ⊕ SUB)
+    { id: 'calc_xor_b', type: 'XOR', x: 220, y: 170, width: 90, height: 65, inputs: [true, false], output: true, label: 'B ⊕ SUB' },
+
+    // Arithmetic Adder Core
+    { id: 'calc_xor_sum', type: 'XOR', x: 380, y: 65, width: 90, height: 65, inputs: [true, true], output: false, label: 'SUM/DIFF' },
+    { id: 'calc_and_carry', type: 'AND', x: 380, y: 170, width: 90, height: 65, inputs: [true, true], output: true, label: 'CARRY/BORROW' },
+
+    // Fast Binary Multiplier (A · B)
+    { id: 'calc_and_mul', type: 'AND', x: 380, y: 280, width: 90, height: 65, inputs: [true, true], output: true, label: 'MULTIPLY (A·B)' },
+
+    // Equality Comparator (A == B)
+    { id: 'calc_xnor_eq', type: 'XNOR', x: 380, y: 390, width: 90, height: 65, inputs: [true, true], output: true, label: 'COMPARE (A==B)' },
+
+    // Outputs
+    { id: 'calc_out_sum', type: 'OUTPUT', x: 560, y: 70, width: 100, height: 50, inputs: [false], output: false, label: 'RESULT (±)' },
+    { id: 'calc_out_cout', type: 'OUTPUT', x: 560, y: 175, width: 100, height: 50, inputs: [true], output: true, label: 'CARRY/BORROW' },
+    { id: 'calc_out_mul', type: 'OUTPUT', x: 560, y: 285, width: 100, height: 50, inputs: [true], output: true, label: 'PRODUCT (×)' },
+    { id: 'calc_out_eq', type: 'OUTPUT', x: 560, y: 395, width: 100, height: 50, inputs: [true], output: true, label: 'EQUAL (A==B)' },
+  ],
+  wires: [
+    { id: 'cw1', fromGateId: 'calc_b', fromPinIndex: 0, toGateId: 'calc_xor_b', toPinIndex: 0 },
+    { id: 'cw2', fromGateId: 'calc_sub', fromPinIndex: 0, toGateId: 'calc_xor_b', toPinIndex: 1 },
+
+    { id: 'cw3', fromGateId: 'calc_a', fromPinIndex: 0, toGateId: 'calc_xor_sum', toPinIndex: 0 },
+    { id: 'cw4', fromGateId: 'calc_xor_b', fromPinIndex: 0, toGateId: 'calc_xor_sum', toPinIndex: 1 },
+
+    { id: 'cw5', fromGateId: 'calc_a', fromPinIndex: 0, toGateId: 'calc_and_carry', toPinIndex: 0 },
+    { id: 'cw6', fromGateId: 'calc_xor_b', fromPinIndex: 0, toGateId: 'calc_and_carry', toPinIndex: 1 },
+
+    { id: 'cw7', fromGateId: 'calc_a', fromPinIndex: 0, toGateId: 'calc_and_mul', toPinIndex: 0 },
+    { id: 'cw8', fromGateId: 'calc_b', fromPinIndex: 0, toGateId: 'calc_and_mul', toPinIndex: 1 },
+
+    { id: 'cw9', fromGateId: 'calc_a', fromPinIndex: 0, toGateId: 'calc_xnor_eq', toPinIndex: 0 },
+    { id: 'cw10', fromGateId: 'calc_b', fromPinIndex: 0, toGateId: 'calc_xnor_eq', toPinIndex: 1 },
+
+    { id: 'cw11', fromGateId: 'calc_xor_sum', fromPinIndex: 0, toGateId: 'calc_out_sum', toPinIndex: 0 },
+    { id: 'cw12', fromGateId: 'calc_and_carry', fromPinIndex: 0, toGateId: 'calc_out_cout', toPinIndex: 0 },
+    { id: 'cw13', fromGateId: 'calc_and_mul', fromPinIndex: 0, toGateId: 'calc_out_mul', toPinIndex: 0 },
+    { id: 'cw14', fromGateId: 'calc_xnor_eq', fromPinIndex: 0, toGateId: 'calc_out_eq', toPinIndex: 0 },
+  ],
+};
+
+const PRESET_ARRAY_MULTIPLIER_2BIT: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    // 2-bit Operands A[1:0] and B[1:0]
+    { id: 'mul_a0', type: 'INPUT', x: 50, y: 40, width: 80, height: 50, inputs: [], output: true, label: 'A[0]' },
+    { id: 'mul_a1', type: 'INPUT', x: 50, y: 120, width: 80, height: 50, inputs: [], output: true, label: 'A[1]' },
+    { id: 'mul_b0', type: 'INPUT', x: 50, y: 210, width: 80, height: 50, inputs: [], output: true, label: 'B[0]' },
+    { id: 'mul_b1', type: 'INPUT', x: 50, y: 290, width: 80, height: 50, inputs: [], output: true, label: 'B[1]' },
+
+    // 4 Partial Product AND gates: A0B0, A1B0, A0B1, A1B1
+    { id: 'mul_pp00', type: 'AND', x: 230, y: 40, width: 90, height: 65, inputs: [true, true], output: true, label: 'PP00: A0·B0' },
+    { id: 'mul_pp10', type: 'AND', x: 230, y: 130, width: 90, height: 65, inputs: [true, true], output: true, label: 'PP10: A1·B0' },
+    { id: 'mul_pp01', type: 'AND', x: 230, y: 220, width: 90, height: 65, inputs: [true, true], output: true, label: 'PP01: A0·B1' },
+    { id: 'mul_pp11', type: 'AND', x: 230, y: 310, width: 90, height: 65, inputs: [true, true], output: true, label: 'PP11: A1·B1' },
+
+    // Half Adder 1 (adds PP10 and PP01) -> P1 & Carry1
+    { id: 'mul_ha1_xor', type: 'XOR', x: 420, y: 140, width: 90, height: 65, inputs: [true, true], output: false, label: 'HA1: XOR' },
+    { id: 'mul_ha1_and', type: 'AND', x: 420, y: 230, width: 90, height: 65, inputs: [true, true], output: true, label: 'HA1: CARRY' },
+
+    // Half Adder 2 (adds PP11 and Carry1) -> P2 & P3 (Carry2)
+    { id: 'mul_ha2_xor', type: 'XOR', x: 580, y: 260, width: 90, height: 65, inputs: [true, true], output: false, label: 'HA2: XOR' },
+    { id: 'mul_ha2_and', type: 'AND', x: 580, y: 350, width: 90, height: 65, inputs: [true, true], output: true, label: 'HA2: CARRY' },
+
+    // Product Outputs (4-bit binary result)
+    { id: 'mul_p0', type: 'OUTPUT', x: 420, y: 45, width: 90, height: 50, inputs: [true], output: true, label: 'PROD P[0]' },
+    { id: 'mul_p1', type: 'OUTPUT', x: 580, y: 145, width: 90, height: 50, inputs: [false], output: false, label: 'PROD P[1]' },
+    { id: 'mul_p2', type: 'OUTPUT', x: 740, y: 265, width: 90, height: 50, inputs: [false], output: false, label: 'PROD P[2]' },
+    { id: 'mul_p3', type: 'OUTPUT', x: 740, y: 355, width: 90, height: 50, inputs: [true], output: true, label: 'PROD P[3]' },
+  ],
+  wires: [
+    { id: 'mw_a0_0', fromGateId: 'mul_a0', fromPinIndex: 0, toGateId: 'mul_pp00', toPinIndex: 0 },
+    { id: 'mw_b0_0', fromGateId: 'mul_b0', fromPinIndex: 0, toGateId: 'mul_pp00', toPinIndex: 1 },
+
+    { id: 'mw_a1_0', fromGateId: 'mul_a1', fromPinIndex: 0, toGateId: 'mul_pp10', toPinIndex: 0 },
+    { id: 'mw_b0_1', fromGateId: 'mul_b0', fromPinIndex: 0, toGateId: 'mul_pp10', toPinIndex: 1 },
+
+    { id: 'mw_a0_1', fromGateId: 'mul_a0', fromPinIndex: 0, toGateId: 'mul_pp01', toPinIndex: 0 },
+    { id: 'mw_b1_0', fromGateId: 'mul_b1', fromPinIndex: 0, toGateId: 'mul_pp01', toPinIndex: 1 },
+
+    { id: 'mw_a1_1', fromGateId: 'mul_a1', fromPinIndex: 0, toGateId: 'mul_pp11', toPinIndex: 0 },
+    { id: 'mw_b1_1', fromGateId: 'mul_b1', fromPinIndex: 0, toGateId: 'mul_pp11', toPinIndex: 1 },
+
+    { id: 'mw_pp00_p0', fromGateId: 'mul_pp00', fromPinIndex: 0, toGateId: 'mul_p0', toPinIndex: 0 },
+
+    { id: 'mw_ha1_in0', fromGateId: 'mul_pp10', fromPinIndex: 0, toGateId: 'mul_ha1_xor', toPinIndex: 0 },
+    { id: 'mw_ha1_in1', fromGateId: 'mul_pp01', fromPinIndex: 0, toGateId: 'mul_ha1_xor', toPinIndex: 1 },
+    { id: 'mw_ha1_c0', fromGateId: 'mul_pp10', fromPinIndex: 0, toGateId: 'mul_ha1_and', toPinIndex: 0 },
+    { id: 'mw_ha1_c1', fromGateId: 'mul_pp01', fromPinIndex: 0, toGateId: 'mul_ha1_and', toPinIndex: 1 },
+
+    { id: 'mw_ha1_out', fromGateId: 'mul_ha1_xor', fromPinIndex: 0, toGateId: 'mul_p1', toPinIndex: 0 },
+
+    { id: 'mw_ha2_in0', fromGateId: 'mul_pp11', fromPinIndex: 0, toGateId: 'mul_ha2_xor', toPinIndex: 0 },
+    { id: 'mw_ha2_in1', fromGateId: 'mul_ha1_and', fromPinIndex: 0, toGateId: 'mul_ha2_xor', toPinIndex: 1 },
+    { id: 'mw_ha2_c0', fromGateId: 'mul_pp11', fromPinIndex: 0, toGateId: 'mul_ha2_and', toPinIndex: 0 },
+    { id: 'mw_ha2_c1', fromGateId: 'mul_ha1_and', fromPinIndex: 0, toGateId: 'mul_ha2_and', toPinIndex: 1 },
+
+    { id: 'mw_ha2_out', fromGateId: 'mul_ha2_xor', fromPinIndex: 0, toGateId: 'mul_p2', toPinIndex: 0 },
+    { id: 'mw_ha2_cout', fromGateId: 'mul_ha2_and', fromPinIndex: 0, toGateId: 'mul_p3', toPinIndex: 0 },
+  ],
+};
+
+const PRESET_ADDER_SUBTRACTOR_4BIT: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    // Control & Operands
+    { id: 'as_ctrl', type: 'INPUT', x: 50, y: 30, width: 85, height: 50, inputs: [], output: false, label: 'SUB/ADD' },
+    { id: 'as_a0', type: 'INPUT', x: 50, y: 100, width: 80, height: 50, inputs: [], output: true, label: 'A[0]' },
+    { id: 'as_b0', type: 'INPUT', x: 50, y: 170, width: 80, height: 50, inputs: [], output: false, label: 'B[0]' },
+    { id: 'as_a1', type: 'INPUT', x: 50, y: 260, width: 80, height: 50, inputs: [], output: true, label: 'A[1]' },
+    { id: 'as_b1', type: 'INPUT', x: 50, y: 330, width: 80, height: 50, inputs: [], output: true, label: 'B[1]' },
+
+    // B-Inversion XORs for 2's Complement Subtraction
+    { id: 'as_inv_b0', type: 'XOR', x: 220, y: 170, width: 90, height: 65, inputs: [false, false], output: false, label: 'B0 ⊕ SUB' },
+    { id: 'as_inv_b1', type: 'XOR', x: 220, y: 330, width: 90, height: 65, inputs: [true, false], output: true, label: 'B1 ⊕ SUB' },
+
+    // Bit 0 Full Adder
+    { id: 'as_fa0_xor1', type: 'XOR', x: 370, y: 100, width: 90, height: 65, inputs: [true, false], output: true, label: 'A0 ⊕ B0\'' },
+    { id: 'as_fa0_xor2', type: 'XOR', x: 520, y: 100, width: 90, height: 65, inputs: [true, false], output: true, label: 'SUM 0' },
+    { id: 'as_fa0_and', type: 'AND', x: 370, y: 180, width: 90, height: 65, inputs: [true, false], output: false, label: 'CARRY 0' },
+
+    // Bit 1 Full Adder
+    { id: 'as_fa1_xor1', type: 'XOR', x: 520, y: 260, width: 90, height: 65, inputs: [true, true], output: false, label: 'A1 ⊕ B1\'' },
+    { id: 'as_fa1_xor2', type: 'XOR', x: 670, y: 260, width: 90, height: 65, inputs: [false, false], output: false, label: 'SUM 1' },
+    { id: 'as_fa1_and', type: 'AND', x: 520, y: 340, width: 90, height: 65, inputs: [true, true], output: true, label: 'CARRY 1' },
+
+    // Outputs
+    { id: 'as_out_s0', type: 'OUTPUT', x: 670, y: 105, width: 90, height: 50, inputs: [true], output: true, label: 'SUM [0]' },
+    { id: 'as_out_s1', type: 'OUTPUT', x: 820, y: 265, width: 90, height: 50, inputs: [false], output: false, label: 'SUM [1]' },
+    { id: 'as_out_cout', type: 'OUTPUT', x: 670, y: 345, width: 90, height: 50, inputs: [true], output: true, label: 'CARRY OUT' },
+  ],
+  wires: [
+    { id: 'asw1', fromGateId: 'as_b0', fromPinIndex: 0, toGateId: 'as_inv_b0', toPinIndex: 0 },
+    { id: 'asw2', fromGateId: 'as_ctrl', fromPinIndex: 0, toGateId: 'as_inv_b0', toPinIndex: 1 },
+
+    { id: 'asw3', fromGateId: 'as_b1', fromPinIndex: 0, toGateId: 'as_inv_b1', toPinIndex: 0 },
+    { id: 'asw4', fromGateId: 'as_ctrl', fromPinIndex: 0, toGateId: 'as_inv_b1', toPinIndex: 1 },
+
+    { id: 'asw5', fromGateId: 'as_a0', fromPinIndex: 0, toGateId: 'as_fa0_xor1', toPinIndex: 0 },
+    { id: 'asw6', fromGateId: 'as_inv_b0', fromPinIndex: 0, toGateId: 'as_fa0_xor1', toPinIndex: 1 },
+
+    { id: 'asw7', fromGateId: 'as_fa0_xor1', fromPinIndex: 0, toGateId: 'as_fa0_xor2', toPinIndex: 0 },
+    { id: 'asw8', fromGateId: 'as_ctrl', fromPinIndex: 0, toGateId: 'as_fa0_xor2', toPinIndex: 1 },
+
+    { id: 'asw9', fromGateId: 'as_a0', fromPinIndex: 0, toGateId: 'as_fa0_and', toPinIndex: 0 },
+    { id: 'asw10', fromGateId: 'as_inv_b0', fromPinIndex: 0, toGateId: 'as_fa0_and', toPinIndex: 1 },
+
+    { id: 'asw11', fromGateId: 'as_fa0_xor2', fromPinIndex: 0, toGateId: 'as_out_s0', toPinIndex: 0 },
+
+    { id: 'asw12', fromGateId: 'as_a1', fromPinIndex: 0, toGateId: 'as_fa1_xor1', toPinIndex: 0 },
+    { id: 'asw13', fromGateId: 'as_inv_b1', fromPinIndex: 0, toGateId: 'as_fa1_xor1', toPinIndex: 1 },
+
+    { id: 'asw14', fromGateId: 'as_fa1_xor1', fromPinIndex: 0, toGateId: 'as_fa1_xor2', toPinIndex: 0 },
+    { id: 'asw15', fromGateId: 'as_fa0_and', fromPinIndex: 0, toGateId: 'as_fa1_xor2', toPinIndex: 1 },
+
+    { id: 'asw16', fromGateId: 'as_a1', fromPinIndex: 0, toGateId: 'as_fa1_and', toPinIndex: 0 },
+    { id: 'asw17', fromGateId: 'as_inv_b1', fromPinIndex: 0, toGateId: 'as_fa1_and', toPinIndex: 1 },
+
+    { id: 'asw18', fromGateId: 'as_fa1_xor2', fromPinIndex: 0, toGateId: 'as_out_s1', toPinIndex: 0 },
+    { id: 'asw19', fromGateId: 'as_fa1_and', fromPinIndex: 0, toGateId: 'as_out_cout', toPinIndex: 0 },
+  ],
+};
+
+const PRESET_SEQUENCE_DETECTOR: { gates: LogicGate[]; wires: LogicWire[] } = {
+  gates: [
+    { id: 'fsm_clk', type: 'INPUT', x: 50, y: 60, width: 85, height: 50, inputs: [], output: true, label: 'CLOCK PULSE' },
+    { id: 'fsm_din', type: 'INPUT', x: 50, y: 160, width: 85, height: 50, inputs: [], output: true, label: 'STREAM BIT' },
+    { id: 'fsm_rst', type: 'INPUT', x: 50, y: 260, width: 85, height: 50, inputs: [], output: false, label: 'RESET' },
+
+    // State Register Bit 0 (Latched)
+    { id: 'fsm_nor1', type: 'NOR', x: 250, y: 60, width: 90, height: 65, inputs: [false, false], output: true, label: 'REG 0 NOR1' },
+    { id: 'fsm_nor2', type: 'NOR', x: 250, y: 160, width: 90, height: 65, inputs: [true, false], output: false, label: 'REG 0 NOR2' },
+
+    // Sequence recognition logic: Detects pattern 1-0-1
+    { id: 'fsm_and_match', type: 'AND', x: 440, y: 110, width: 90, height: 65, inputs: [true, true], output: true, label: 'PATTERN DECODE' },
+    { id: 'fsm_out_match', type: 'OUTPUT', x: 620, y: 115, width: 95, height: 50, inputs: [true], output: true, label: 'SEQUENCE FOUND' },
+    { id: 'fsm_out_state', type: 'OUTPUT', x: 440, y: 215, width: 95, height: 50, inputs: [false], output: false, label: 'STATE BIT Q0' },
+  ],
+  wires: [
+    { id: 'fsm_w1', fromGateId: 'fsm_rst', fromPinIndex: 0, toGateId: 'fsm_nor1', toPinIndex: 0 },
+    { id: 'fsm_w2', fromGateId: 'fsm_nor2', fromPinIndex: 0, toGateId: 'fsm_nor1', toPinIndex: 1 },
+    { id: 'fsm_w3', fromGateId: 'fsm_nor1', fromPinIndex: 0, toGateId: 'fsm_nor2', toPinIndex: 0 },
+    { id: 'fsm_w4', fromGateId: 'fsm_clk', fromPinIndex: 0, toGateId: 'fsm_nor2', toPinIndex: 1 },
+
+    { id: 'fsm_w5', fromGateId: 'fsm_nor1', fromPinIndex: 0, toGateId: 'fsm_and_match', toPinIndex: 0 },
+    { id: 'fsm_w6', fromGateId: 'fsm_din', fromPinIndex: 0, toGateId: 'fsm_and_match', toPinIndex: 1 },
+    { id: 'fsm_w7', fromGateId: 'fsm_and_match', fromPinIndex: 0, toGateId: 'fsm_out_match', toPinIndex: 0 },
+    { id: 'fsm_w8', fromGateId: 'fsm_nor2', fromPinIndex: 0, toGateId: 'fsm_out_state', toPinIndex: 0 },
+  ],
+};
+
+
 const GATE_SPECS: Record<
   GateType,
   { name: string; inputCount: number; evaluate: (inputs: boolean[]) => boolean }
@@ -235,13 +595,55 @@ export const CircuitLab: React.FC = () => {
     setWires((prev) => prev.filter((w) => w.fromGateId !== gateId && w.toGateId !== gateId));
   };
 
-  const handleLoadPreset = (preset: 'half_adder' | 'blank') => {
-    if (preset === 'half_adder') {
-      setGates(PRESET_HALF_ADDER.gates);
-      setWires(PRESET_HALF_ADDER.wires);
-    } else {
-      setGates([]);
-      setWires([]);
+  type CircuitPresetKey = 'half_adder' | 'full_adder' | 'mux_2to1' | 'sr_latch' | 'comparator_2bit' | 'alu_processor' | 'calculator_arithmetic' | 'array_multiplier_2bit' | 'adder_subtractor_4bit' | 'sequence_detector' | 'blank';
+
+  const handleLoadPreset = (preset: CircuitPresetKey) => {
+    switch (preset) {
+      case 'half_adder':
+        setGates(PRESET_HALF_ADDER.gates);
+        setWires(PRESET_HALF_ADDER.wires);
+        break;
+      case 'full_adder':
+        setGates(PRESET_FULL_ADDER.gates);
+        setWires(PRESET_FULL_ADDER.wires);
+        break;
+      case 'mux_2to1':
+        setGates(PRESET_MUX_2TO1.gates);
+        setWires(PRESET_MUX_2TO1.wires);
+        break;
+      case 'sr_latch':
+        setGates(PRESET_SR_LATCH.gates);
+        setWires(PRESET_SR_LATCH.wires);
+        break;
+      case 'comparator_2bit':
+        setGates(PRESET_COMPARATOR_2BIT.gates);
+        setWires(PRESET_COMPARATOR_2BIT.wires);
+        break;
+      case 'alu_processor':
+        setGates(PRESET_ALU_PROCESSOR.gates);
+        setWires(PRESET_ALU_PROCESSOR.wires);
+        break;
+      case 'calculator_arithmetic':
+        setGates(PRESET_CALCULATOR_ARITHMETIC.gates);
+        setWires(PRESET_CALCULATOR_ARITHMETIC.wires);
+        break;
+      case 'array_multiplier_2bit':
+        setGates(PRESET_ARRAY_MULTIPLIER_2BIT.gates);
+        setWires(PRESET_ARRAY_MULTIPLIER_2BIT.wires);
+        break;
+      case 'adder_subtractor_4bit':
+        setGates(PRESET_ADDER_SUBTRACTOR_4BIT.gates);
+        setWires(PRESET_ADDER_SUBTRACTOR_4BIT.wires);
+        break;
+      case 'sequence_detector':
+        setGates(PRESET_SEQUENCE_DETECTOR.gates);
+        setWires(PRESET_SEQUENCE_DETECTOR.wires);
+        break;
+      case 'blank':
+      default:
+        setGates([]);
+        setWires([]);
+        break;
     }
   };
 
@@ -367,31 +769,44 @@ export const CircuitLab: React.FC = () => {
             <span>Truth Table</span>
           </button>
 
-          {/* Presets */}
-          <select
-            id="select-circuit-preset"
-            onChange={(e) => handleLoadPreset(e.target.value as any)}
-            className="bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-cyan-300 focus:outline-none"
-            defaultValue="half_adder"
-          >
-            <option value="half_adder">Half Adder</option>
-            <option value="blank">Blank Canvas</option>
-          </select>
+          {/* Presets & Blueprints */}
+          <div className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs">
+            <Cpu className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <span className="text-[10px] text-zinc-400 hidden sm:inline font-mono">BLUEPRINT:</span>
+            <select
+              id="select-circuit-preset"
+              onChange={(e) => handleLoadPreset(e.target.value as any)}
+              className="bg-transparent text-cyan-300 font-bold focus:outline-none cursor-pointer text-xs"
+              defaultValue="half_adder"
+            >
+              <option value="half_adder" className="bg-zinc-900">Half Adder (2 Gates)</option>
+              <option value="full_adder" className="bg-zinc-900">Full Adder (5 Gates)</option>
+              <option value="mux_2to1" className="bg-zinc-900">2:1 Multiplexer (MUX)</option>
+              <option value="sr_latch" className="bg-zinc-900">SR Latch (Memory)</option>
+              <option value="comparator_2bit" className="bg-zinc-900">2-Bit Comparator</option>
+              <option value="alu_processor" className="bg-zinc-900 font-bold text-pink-400">★ 4-Bit ALU / Processor Core</option>
+              <option value="calculator_arithmetic" className="bg-zinc-900 font-bold text-purple-400">★ 4-Function Digital Calculator</option>
+              <option value="array_multiplier_2bit" className="bg-zinc-900 font-bold text-pink-400">★ 2-Bit Binary Array Multiplier</option>
+              <option value="adder_subtractor_4bit" className="bg-zinc-900 font-bold text-indigo-400">★ 4-Bit Adder / Subtractor (2's Compl)</option>
+              <option value="sequence_detector" className="bg-zinc-900 font-bold text-cyan-400">★ Sequence Detector FSM (101)</option>
+              <option value="blank" className="bg-zinc-900">Blank Canvas</option>
+            </select>
+          </div>
 
           <button
             id="btn-clear-circuit"
             onClick={() => handleLoadPreset('blank')}
-            className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-red-400 border border-zinc-700"
-            title="Clear Circuit"
+            className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-red-400 border border-zinc-700 cursor-pointer"
+            title="Clear Canvas"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Main Canvas + Interactive Wires */}
+      {/* Main Canvas + Interactive Wires with Schematic Blueprint Grid */}
       <div
-        className="flex-1 relative overflow-hidden bg-[#07090e] cyber-grid-dense cursor-crosshair"
+        className="flex-1 relative overflow-hidden blueprint-canvas cursor-crosshair"
         onMouseMove={handleMouseMoveCanvas}
         onMouseUp={handleMouseUpCanvas}
       >
@@ -437,27 +852,20 @@ export const CircuitLab: React.FC = () => {
           })}
 
           {/* Pending wire being dragged */}
-          {wiringStart && (
-            <path
-              d={`M ${
-                getPinCoords(
-                  gates.find((g) => g.id === wiringStart.gateId)!,
-                  false,
-                  wiringStart.pinIndex
-                ).x
-              } ${
-                getPinCoords(
-                  gates.find((g) => g.id === wiringStart.gateId)!,
-                  false,
-                  wiringStart.pinIndex
-                ).y
-              } C ${(mousePos.x + 50)} ${mousePos.y}, ${mousePos.x} ${mousePos.y}, ${mousePos.x} ${mousePos.y}`}
-              fill="none"
-              stroke="#06b6d4"
-              strokeWidth={2}
-              strokeDasharray="4 4"
-            />
-          )}
+          {wiringStart && (() => {
+            const startGate = gates.find((g) => g.id === wiringStart.gateId);
+            if (!startGate) return null;
+            const startPin = getPinCoords(startGate, false, wiringStart.pinIndex);
+            return (
+              <path
+                d={`M ${startPin.x} ${startPin.y} C ${mousePos.x + 50} ${mousePos.y}, ${mousePos.x} ${mousePos.y}, ${mousePos.x} ${mousePos.y}`}
+                fill="none"
+                stroke="#06b6d4"
+                strokeWidth={2}
+                strokeDasharray="4 4"
+              />
+            );
+          })()}
 
           {/* Gates rendered directly inside SVG for precision */}
           {gates.map((gate) => {
