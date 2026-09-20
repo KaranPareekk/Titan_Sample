@@ -11,11 +11,13 @@ export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onEnter }) => {
   useEffect(() => {
     try {
       const profile = StorageService.getUserProfile();
-      if (profile && profile.name) {
+      if (profile && profile.name && !profile.name.toLowerCase().includes('karan')) {
         setUserName(profile.name.toUpperCase());
+      } else {
+        setUserName('USER');
       }
     } catch {
-      // Default to USER
+      setUserName('USER');
     }
   }, []);
 
