@@ -1,26 +1,53 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 @layer base {
   :root {
-    --bg-primary: #07090e;
-    --bg-panel: #0f172a;
-    --bg-panel-header: #1e293b;
-    --border-subtle: #1e293b;
-    --border-hover: #334155;
-    --border-active: #06b6d4;
-    --accent-cyan: #06b6d4;
-    --accent-cyan-glow: rgba(6, 182, 212, 0.2);
+    --bg-primary: #0c0717;
+    --bg-panel: #160d29;
+    --bg-panel-header: #21133d;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(236, 72, 153, 0.45);
+    --border-active: #ec4899;
+    --accent-primary: #ec4899;
+    --accent-purple: #a855f7;
+    --accent-pink-glow: rgba(236, 72, 153, 0.25);
   }
 
   .light {
-    --bg-primary: #f8fafc;
+    --bg-primary: #fdf4ff;
     --bg-panel: #ffffff;
-    --bg-panel-header: #f1f5f9;
-    --border-subtle: #e2e8f0;
-    --border-hover: #cbd5e1;
-    --border-active: #0284c7;
-    --accent-cyan: #0284c7;
-    --accent-cyan-glow: rgba(2, 132, 199, 0.15);
+    --bg-panel-header: #fae8ff;
+    --border-subtle: #f0abfc;
+    --border-hover: #d946ef;
+    --border-active: #ec4899;
+    --accent-primary: #d946ef;
+    --accent-purple: #a855f7;
+    --accent-pink-glow: rgba(217, 70, 239, 0.2);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    letter-spacing: -0.012em;
+    background-color: var(--bg-primary);
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Universal rounded font for all labels, sub-labels, badges and UI elements */
+  span, p, h1, h2, h3, h4, h5, h6, label, button, input, select {
+    font-family: var(--font-sans);
+  }
+
+  /* Monospace reserved strictly for actual code content with calt ligatures */
+  pre, code, .font-mono-code {
+    font-family: var(--font-mono);
+    font-feature-settings: "calt" 1, "zero" 1;
   }
 }
 
@@ -31,87 +58,142 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(18, 10, 34, 0.8);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 2px;
+  background: #3b1b59;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #06b6d4;
+  background: #ec4899;
 }
 
-/* Clean Minimalism Theme Classes */
+/* Dark Pink & Purple Workstation Theme Classes */
 .station-bg {
-  background-image: radial-gradient(circle at 2px 2px, #1a202c 1px, transparent 0);
-  background-size: 24px 24px;
+  background-color: #0c0717;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(236, 72, 153, 0.08) 1.2px, transparent 0),
+    linear-gradient(to right, rgba(168, 85, 247, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(168, 85, 247, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px, 24px 24px, 24px 24px;
 }
 
-.cyan-glow {
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
-  border-color: rgba(6, 182, 212, 0.4);
+/* Ruled Notebook Paper Texture with Line-Locking for Code (Matching Image 3) */
+.ruled-notebook-paper {
+  background-color: #11091f;
+  background-image: 
+    /* Vertical soft margin rule */
+    linear-gradient(to right, transparent 48px, rgba(244, 63, 94, 0.28) 48px, rgba(244, 63, 94, 0.28) 50px, transparent 50px),
+    /* Horizontal notebook ruled lines at exact 28px height */
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 27px,
+      rgba(168, 85, 247, 0.22) 27px,
+      rgba(168, 85, 247, 0.22) 28px
+    );
+  background-size: 100% 100%, 100% 28px;
 }
 
-.terminal-font {
-  font-family: 'Courier New', Courier, monospace;
+/* Android Notes / Graph Paper texture (Purple-Pink Obsidian) */
+.notes-texture {
+  background-color: #0e081c;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(236, 72, 153, 0.1) 1.2px, transparent 0),
+    linear-gradient(to right, rgba(168, 85, 247, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(168, 85, 247, 0.025) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px, 22px 22px;
+}
+
+/* Engineering Blueprint Canvas for Logic Gates (Purple & Violet Schematic Grid) */
+.blueprint-canvas {
+  background-color: #0b0616;
+  background-image: 
+    linear-gradient(rgba(217, 70, 239, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217, 70, 239, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(168, 85, 247, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.035) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+}
+
+/* Code editor textured background */
+.code-editor-bg {
+  background-color: #11091f;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 27px,
+    rgba(168, 85, 247, 0.2) 27px,
+    rgba(168, 85, 247, 0.2) 28px
+  );
+  background-size: 100% 28px;
+}
+
+.glass-panel {
+  background: rgba(22, 13, 41, 0.88);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.glass-card {
+  background: rgba(25, 14, 48, 0.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(236, 72, 153, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(236, 72, 153, 0.3);
+}
+
+.pink-glow {
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.25);
+  border-color: rgba(236, 72, 153, 0.45);
+}
+
+.purple-glow {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+  border-color: rgba(168, 85, 247, 0.45);
+}
+
+.font-tech {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .control-btn {
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid #334155;
+  background: linear-gradient(180deg, #2d164d 0%, #170b2b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.2s;
 }
 
 .control-btn:hover {
-  border-color: #06b6d4;
-  color: #06b6d4;
-  background: #1e293b;
+  border-color: #ec4899;
+  color: #ec4899;
+  background: #2d164d;
 }
 
 .active-tab {
-  border-bottom: 2px solid #06b6d4;
-  color: #06b6d4;
-  background: rgba(6, 182, 212, 0.05);
+  border-bottom: 2px solid #ec4899;
+  color: #ec4899;
+  background: rgba(236, 72, 153, 0.08);
 }
 
-/* Engineering Workstation Grid Background (Legacy alias) */
-.cyber-grid {
-  background-image: radial-gradient(circle at 2px 2px, #1a202c 1px, transparent 0);
-  background-size: 24px 24px;
+/* Accent Glows */
+.glow-pink {
+  box-shadow: 0 0 20px -2px rgba(236, 72, 153, 0.4);
 }
 
-.cyber-grid-dense {
-  background-size: 16px 16px;
-  background-image: 
-    linear-gradient(to right, rgba(6, 182, 212, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+.glow-purple {
+  box-shadow: 0 0 20px -2px rgba(168, 85, 247, 0.4);
 }
 
-/* Font helpers */
-.font-mono-code {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+.glow-white {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.25);
 }
-
-.font-tech {
-  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-}
-
-/* Subtle glow */
-.glow-cyan {
-  box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.25);
-}
-
-.glow-cyan-border {
-  box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.4), 0 0 12px rgba(6, 182, 212, 0.2);
-}
-
-.glow-amber {
-  box-shadow: 0 0 15px -3px rgba(245, 158, 11, 0.25);
-}
-
-.glow-emerald {
-  box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.25);
-}
-

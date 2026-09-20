@@ -7,9 +7,7 @@ export type ModuleId =
   | 'dbms'
   | 'ai'
   | 'study'
-  | 'knowledge'
   | 'assessment'
-  | 'games'
   | 'workspace';
 
 export interface SavedProgram {
@@ -39,6 +37,9 @@ export interface AssessmentAttempt {
   timestamp: number;
   timeSpentSec: number;
   weakTopics: string[];
+  mode?: string;
+  totalQuestions?: number;
+  completedAt?: number;
 }
 
 export interface UserProgress {
@@ -62,14 +63,24 @@ export interface SystemSettings {
 export type DsaAlgorithm =
   | 'lcs'
   | 'edit_distance'
+  | 'knapsack_01'
+  | 'coin_change'
+  | 'lis'
+  | 'matrix_chain'
+  | 'word_break'
+  | 'two_pointers'
+  | 'sliding_window'
   | 'binary_search'
   | 'bubble_sort'
   | 'selection_sort'
   | 'insertion_sort'
   | 'merge_sort'
+  | 'quick_sort'
   | 'bfs'
   | 'dfs'
-  | 'dijkstra';
+  | 'dijkstra'
+  | 'topological_sort'
+  | 'kruskal';
 
 export interface DsaStep {
   description: string;
@@ -192,12 +203,19 @@ export interface AiChatMessage {
   content: string;
   timestamp: number;
   codeSnippet?: string;
+  attachment?: {
+    name: string;
+    type: 'image' | 'document';
+    dataUrl?: string;
+    content?: string;
+    size?: string;
+  };
 }
 
 // AI Assessment Problem
 export interface AiAssessmentProblem {
   id: string;
-  track: 'Beginner' | 'DSA' | 'OOP' | 'System Design' | 'Interview';
+  track: 'DSA' | 'OOP' | 'System Design' | 'Interview';
   title: string;
   difficulty: 'easy' | 'medium' | 'hard';
   language: 'python' | 'javascript' | 'java' | 'cpp' | 'sql';

@@ -168,7 +168,7 @@ export const DbmsLab: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `query_results_\${Date.now()}.csv`;
+    link.download = `query_results_${Date.now()}.csv`;
     link.click();
   };
 
@@ -198,29 +198,26 @@ export const DbmsLab: React.FC = () => {
   return (
     <div
       id="dbms-workbench-root"
-      className="h-full w-full flex flex-col bg-[#07090e] text-zinc-100 select-none overflow-hidden"
+      className="h-full w-full flex flex-col bg-[#040914] text-zinc-100 select-none overflow-hidden"
     >
       {/* TOP CONTROLS BAR */}
       <header
         id="dbms-toolbar"
-        className="min-h-[3.75rem] h-auto py-2.5 bg-[#0c1017] border-b border-zinc-800 px-4 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-20"
+        className="min-h-[3.75rem] h-auto py-2.5 bg-[#081529] border-b border-cyan-900/50 px-4 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-20 shadow-md shadow-cyan-950/30"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-950/80 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
             <Database className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-tech text-xs font-bold text-zinc-200 tracking-wide">
+              <span className="text-xs font-bold text-white tracking-wide">
                 TITAN SQL DATABASE WORKBENCH
               </span>
-              <span className="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 text-[10px] font-mono text-cyan-400 font-bold">
+              <span className="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-[10px] text-cyan-300 font-mono font-bold">
                 {activeDb}
               </span>
             </div>
-            <span className="block text-[10px] font-mono text-zinc-400">
-              ACID Relational Engine • Multi-Statement (;) Execution Supported
-            </span>
           </div>
         </div>
 
@@ -287,10 +284,10 @@ export const DbmsLab: React.FC = () => {
         {/* LEFT SIDEBAR: Database & Tables Explorer */}
         <aside
           id="dbms-sidebar-navigator"
-          className="w-64 sm:w-72 bg-[#0a0d14] border-r border-zinc-800 flex flex-col shrink-0 overflow-hidden"
+          className="w-64 sm:w-72 bg-[#061122] border-r border-cyan-900/40 flex flex-col shrink-0 overflow-hidden"
         >
           {/* Database Selector & Actions */}
-          <div className="p-3 border-b border-zinc-800 bg-[#0d111a] flex flex-col gap-2">
+          <div className="p-3 border-b border-cyan-900/40 bg-[#0a1b36] flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
                 <Database className="w-3.5 h-3.5 text-cyan-400" />
@@ -320,7 +317,7 @@ export const DbmsLab: React.FC = () => {
           </div>
 
           {/* Tables Section Header + Search + New Table */}
-          <div className="p-2.5 border-b border-zinc-800 flex flex-col gap-2 bg-[#090c13]">
+          <div className="p-2.5 border-b border-cyan-900/40 flex flex-col gap-2 bg-[#08162d]">
             <div className="flex items-center justify-between text-[11px] font-mono">
               <span className="text-slate-400 font-bold flex items-center gap-1">
                 <TableIcon className="w-3.5 h-3.5 text-amber-400" />
@@ -437,11 +434,11 @@ export const DbmsLab: React.FC = () => {
         </aside>
 
         {/* MAIN CENTER WORKSPACE: SQL Editor (Top) & Results Table (Bottom) */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-[#07090e]">
+        <main className="flex-1 flex flex-col overflow-hidden bg-[#040914]">
           {/* UPPER SECTION: SQL Script Editor */}
-          <div className="h-1/2 flex flex-col border-b border-zinc-800 bg-[#090d14]">
+          <div className="h-1/2 flex flex-col border-b border-cyan-900/40 bg-[#061224]">
             {/* Editor Sub-header */}
-            <div className="h-8 bg-[#0b0f17] border-b border-zinc-800 px-3 flex items-center justify-between text-[11px] font-mono text-zinc-400 shrink-0">
+            <div className="h-8 bg-[#0a1a33] border-b border-cyan-900/40 px-3 flex items-center justify-between text-[11px] font-mono text-cyan-200/80 shrink-0">
               <div className="flex items-center gap-2">
                 <Code2 className="w-3.5 h-3.5 text-cyan-400" />
                 <span className="font-bold text-zinc-300">SQL SCRIPT EDITOR</span>
@@ -497,7 +494,7 @@ export const DbmsLab: React.FC = () => {
                       key={i}
                       type="button"
                       onClick={() => setActiveResultTab(i)}
-                      className={`px-2.5 py-1 rounded text-[11px] font-mono flex items-center gap-1.5 transition-all cursor-pointer \${
+                      className={`px-2.5 py-1 rounded text-[11px] font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
                         activeResultTab === i
                           ? 'bg-cyan-950/80 border border-cyan-700 text-cyan-300 font-bold'
                           : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'

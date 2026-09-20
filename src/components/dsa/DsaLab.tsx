@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Play,
   Pause,
@@ -12,28 +12,41 @@ import {
   Code,
   Activity,
   Sliders,
+  Zap,
+  FastForward,
 } from 'lucide-react';
 import { DsaAlgorithm, DsaStep } from '../../types';
 import {
   DSA_ALGORITHMS,
   generateLcsSteps,
   generateEditDistanceSteps,
+  generateKnapsackSteps,
+  generateCoinChangeSteps,
+  generateLisSteps,
+  generateMatrixChainSteps,
+  generateWordBreakSteps,
+  generateTwoPointersSteps,
+  generateSlidingWindowSteps,
   generateBinarySearchSteps,
   generateBubbleSortSteps,
   generateSelectionSortSteps,
   generateInsertionSortSteps,
   generateMergeSortSteps,
+  generateQuickSortSteps,
   generateBfsSteps,
   generateDfsSteps,
   generateDijkstraSteps,
+  generateTopologicalSortSteps,
+  generateKruskalSteps,
   SAMPLE_GRAPH,
 } from './dsaEngines';
 
 export const DsaLab: React.FC = () => {
-  const [selectedAlgoId, setSelectedAlgoId] = useState<DsaAlgorithm>('binary_search');
+  const [selectedAlgoId, setSelectedAlgoId] = useState<DsaAlgorithm>('knapsack_01');
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1000); // ms per step
+  const [fastSkipNoOps, setFastSkipNoOps] = useState<boolean>(true); // 10x speed on inactive comparisons
 
   // Input states
   const [arrayInput, setArrayInput] = useState<string>('12, 25, 37, 42, 58, 64, 73, 89, 95');
@@ -59,6 +72,26 @@ export const DsaLab: React.FC = () => {
           return generateLcsSteps(stringA || 'ABC', stringB || 'AC');
         case 'edit_distance':
           return generateEditDistanceSteps(stringA || 'KITTEN', stringB || 'SITTING');
+        case 'knapsack_01':
+          return generateKnapsackSteps([2, 3, 4, 5], [3, 4, 5, 8], 7);
+        case 'coin_change':
+          return generateCoinChangeSteps([1, 2, 5], 7);
+        case 'lis':
+          return generateLisSteps(parsedArray.length > 0 ? parsedArray : [10, 22, 9, 33, 21, 50, 41, 60]);
+        case 'matrix_chain':
+          return generateMatrixChainSteps([10, 20, 30, 40, 30]);
+        case 'word_break':
+          return generateWordBreakSteps('leetcode', ['leet', 'code']);
+        case 'two_pointers':
+          return generateTwoPointersSteps(
+            parsedArray.length > 0 ? parsedArray : [2, 7, 11, 15, 19, 23, 28],
+            searchTarget || 26
+          );
+        case 'sliding_window':
+          return generateSlidingWindowSteps(
+            parsedArray.length > 0 ? parsedArray : [2, 1, 5, 1, 3, 2, 8, 4],
+            3
+          );
         case 'binary_search':
           return generateBinarySearchSteps(
             parsedArray.length > 0 ? parsedArray : [10, 20, 30, 40, 50],
@@ -72,12 +105,18 @@ export const DsaLab: React.FC = () => {
           return generateInsertionSortSteps(parsedArray.length > 0 ? parsedArray : [45, 12, 89, 34, 21]);
         case 'merge_sort':
           return generateMergeSortSteps(parsedArray.length > 0 ? parsedArray : [38, 27, 43, 3, 9, 82, 10]);
+        case 'quick_sort':
+          return generateQuickSortSteps(parsedArray.length > 0 ? parsedArray : [45, 12, 89, 34, 21]);
         case 'bfs':
           return generateBfsSteps(startGraphNode);
         case 'dfs':
           return generateDfsSteps(startGraphNode);
         case 'dijkstra':
           return generateDijkstraSteps(startGraphNode);
+        case 'topological_sort':
+          return generateTopologicalSortSteps();
+        case 'kruskal':
+          return generateKruskalSteps();
         default:
           return [];
       }
@@ -93,27 +132,86 @@ export const DsaLab: React.FC = () => {
     setIsPlaying(false);
   }, [selectedAlgoId]);
 
-  // Autoplay timer
+  // Determine if a step is an inactive comparison / condition non-match
+  const isNoOpStep = useCallback((stepIdx: number, stepList: DsaStep[]): boolean => {
+    if (stepIdx >= stepList.length - 1) return false;
+    const current = stepList[stepIdx];
+    const next = stepList[stepIdx + 1];
+    if (!current || !next) return false;
+
+    const desc = current.description.toLowerCase();
+
+    // 1. Comparison step where no swap occurs
+    if (desc.includes('comparing') || desc.includes('check') || desc.includes('evaluating') || desc.includes('inspecting')) {
+      if (current.state?.swapped === false && next.state?.swapped !== true) {
+        return true;
+      }
+    }
+
+    // 2. LCS / Edit distance character non-match
+    if (current.state?.match === false) {
+      return true;
+    }
+
+    // 3. Non-min checks, no change steps, or visited steps
+    if (
+      desc.includes('not smaller') ||
+      desc.includes('no change') ||
+      desc.includes('already visited') ||
+      desc.includes('no shorter path') ||
+      desc.includes('cost = 1')
+    ) {
+      return true;
+    }
+
+    // 4. Array values remain identical across steps
+    if (current.state?.arr && next.state?.arr) {
+      const currArr = current.state.arr;
+      const nextArr = next.state.arr;
+      if (Array.isArray(currArr) && Array.isArray(nextArr)) {
+        if (currArr.length === nextArr.length && currArr.every((v, idx) => v === nextArr[idx])) {
+          if (desc.includes('comparing') || desc.includes('scan')) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }, []);
+
+  // Adaptive Autoplay Timer: Runs non-matching comparisons 10x faster
   const playTimerRef = useRef<any>(null);
   useEffect(() => {
-    if (isPlaying) {
-      playTimerRef.current = setInterval(() => {
-        setCurrentStepIndex((prev) => {
-          if (prev < steps.length - 1) {
-            return prev + 1;
-          } else {
-            setIsPlaying(false);
-            return prev;
-          }
-        });
-      }, playbackSpeed);
-    } else {
-      if (playTimerRef.current) clearInterval(playTimerRef.current);
+    if (!isPlaying) {
+      if (playTimerRef.current) clearTimeout(playTimerRef.current);
+      return;
     }
+
+    if (currentStepIndex >= steps.length - 1) {
+      setIsPlaying(false);
+      return;
+    }
+
+    const isNoOp = fastSkipNoOps && isNoOpStep(currentStepIndex, steps);
+    // 10x faster for inactive comparisons (e.g., 100ms instead of 1000ms)
+    const stepDuration = isNoOp ? Math.max(45, Math.round(playbackSpeed / 10)) : playbackSpeed;
+
+    playTimerRef.current = setTimeout(() => {
+      setCurrentStepIndex((prev) => {
+        if (prev < steps.length - 1) {
+          return prev + 1;
+        } else {
+          setIsPlaying(false);
+          return prev;
+        }
+      });
+    }, stepDuration);
+
     return () => {
-      if (playTimerRef.current) clearInterval(playTimerRef.current);
+      if (playTimerRef.current) clearTimeout(playTimerRef.current);
     };
-  }, [isPlaying, steps.length, playbackSpeed]);
+  }, [isPlaying, currentStepIndex, steps, playbackSpeed, fastSkipNoOps, isNoOpStep]);
 
   const currentStep = steps[currentStepIndex] || steps[0] || {
     description: 'Ready.',
@@ -133,17 +231,26 @@ export const DsaLab: React.FC = () => {
     setIsPlaying(false);
   };
 
+  const handleSkipToNextChange = () => {
+    setIsPlaying(false);
+    let nextIdx = currentStepIndex + 1;
+    while (nextIdx < steps.length - 1 && isNoOpStep(nextIdx, steps)) {
+      nextIdx++;
+    }
+    setCurrentStepIndex(Math.min(steps.length - 1, nextIdx));
+  };
+
   return (
     <div
       id="dsa-lab-root"
-      className="h-full w-full flex flex-col lg:flex-row overflow-hidden select-none bg-[#07090e] text-zinc-100"
+      className="h-full w-full flex flex-col lg:flex-row overflow-hidden select-none bg-[#0c0717] text-purple-100"
     >
       {/* 1. Left: Vertical Algorithm Selector Rail */}
       <aside
         id="dsa-algo-selector"
-        className="w-full lg:w-56 bg-[#090d14] border-b lg:border-b-0 lg:border-r border-zinc-800 p-2 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-y-auto shrink-0 z-10"
+        className="w-full lg:w-56 bg-[#130b24] border-b lg:border-b-0 lg:border-r border-purple-900/40 p-2 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-y-auto shrink-0 z-10"
       >
-        <div className="hidden lg:block px-3 py-2 text-[11px] font-mono text-cyan-400 tracking-wider font-semibold border-b border-zinc-800/80 mb-1">
+        <div className="hidden lg:block px-3 py-2 text-[11px] text-pink-400 tracking-wider font-bold border-b border-purple-900/40 mb-1">
           ALGORITHM REGISTRY
         </div>
 
@@ -154,19 +261,16 @@ export const DsaLab: React.FC = () => {
               key={algo.id}
               id={`algo-btn-${algo.id}`}
               onClick={() => setSelectedAlgoId(algo.id)}
-              className={`px-3 py-2 rounded-lg text-left transition-all shrink-0 text-xs font-medium flex items-center justify-between group ${
+              className={`px-3 py-2.5 rounded-lg text-left transition-all shrink-0 text-xs font-medium flex items-center justify-between group ${
                 isSelected
-                  ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]'
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 border border-transparent'
+                  ? 'bg-pink-950/60 text-pink-200 border border-pink-500/50 shadow-[0_0_12px_rgba(236,72,153,0.25)]'
+                  : 'text-purple-200/70 hover:text-white hover:bg-purple-900/30 border border-transparent'
               }`}
             >
               <div className="truncate">
-                <span className="block truncate font-tech">{algo.name}</span>
-                <span className="text-[10px] font-mono text-zinc-400 block group-hover:text-zinc-400">
-                  {algo.category}
-                </span>
+                <span className="block truncate font-medium text-xs tracking-wide">{algo.name}</span>
               </div>
-              {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#06b6d4] ml-2 shrink-0" />}
+              {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-pink-400 shadow-[0_0_6px_#ec4899] ml-2 shrink-0" />}
             </button>
           );
         })}
@@ -246,6 +350,33 @@ export const DsaLab: React.FC = () => {
               <span>END</span>
             </button>
 
+            {/* Skip directly to next state change */}
+            <button
+              type="button"
+              onClick={handleSkipToNextChange}
+              disabled={currentStepIndex >= steps.length - 1}
+              className="px-2 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 text-xs disabled:opacity-40 disabled:cursor-not-allowed hidden md:flex items-center gap-1 cursor-pointer"
+              title="Skip past non-matching steps directly to next state change"
+            >
+              <FastForward className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Next Change</span>
+            </button>
+
+            {/* 10x Fast No-Ops Toggle */}
+            <button
+              type="button"
+              onClick={() => setFastSkipNoOps(!fastSkipNoOps)}
+              title={fastSkipNoOps ? '10x Faster Inactive Comparisons: ACTIVE' : 'Normal Pace for All Steps'}
+              className={`px-2.5 py-1.5 rounded text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                fastSkipNoOps
+                  ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                  : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200'
+              }`}
+            >
+              <Zap className={`w-3.5 h-3.5 ${fastSkipNoOps ? 'text-emerald-400 animate-pulse' : 'text-zinc-400'}`} />
+              <span className="hidden sm:inline">10x Fast Inactive</span>
+            </button>
+
             {/* Step Counter Badge */}
             <div className="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 text-[11px] font-mono">
               STEP <span className="text-cyan-400 font-bold">{currentStepIndex + 1}</span> / {steps.length}
@@ -298,8 +429,13 @@ export const DsaLab: React.FC = () => {
                   setArrayInput(e.target.value);
                   setCurrentStepIndex(0);
                 }}
-                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-cyan-300 w-64 focus:border-cyan-400 focus:outline-none"
+                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-pink-300 w-64 focus:border-pink-400 focus:outline-none"
               />
+            </div>
+          )}
+
+          {['binary_search', 'two_pointers'].includes(selectedAlgoId) && (
+            <div className="flex items-center gap-2">
               <span className="text-zinc-400">TARGET:</span>
               <input
                 id="input-dsa-target"
@@ -309,7 +445,7 @@ export const DsaLab: React.FC = () => {
                   setSearchTarget(Number(e.target.value));
                   setCurrentStepIndex(0);
                 }}
-                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-cyan-300 w-20 focus:border-cyan-400 focus:outline-none"
+                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-pink-300 w-20 focus:border-pink-400 focus:outline-none"
               />
               <button
                 id="btn-dsa-randomize"
@@ -317,12 +453,14 @@ export const DsaLab: React.FC = () => {
                 className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
                 title="Randomize Values"
               >
-                <Shuffle className="w-3.5 h-3.5 text-cyan-400" />
+                <Shuffle className="w-3.5 h-3.5 text-pink-400" />
               </button>
             </div>
           )}
 
-          {['bubble_sort', 'selection_sort', 'insertion_sort', 'merge_sort'].includes(selectedAlgoId) && (
+          {['bubble_sort', 'selection_sort', 'insertion_sort', 'merge_sort', 'quick_sort', 'lis', 'two_pointers', 'sliding_window'].includes(
+            selectedAlgoId
+          ) && (
             <div className="flex items-center gap-3 flex-wrap">
               <span className="text-zinc-400">ARRAY:</span>
               <input
@@ -333,7 +471,7 @@ export const DsaLab: React.FC = () => {
                   setArrayInput(e.target.value);
                   setCurrentStepIndex(0);
                 }}
-                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-cyan-300 w-72 focus:border-cyan-400 focus:outline-none"
+                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-pink-300 w-72 focus:border-pink-400 focus:outline-none"
               />
               <button
                 id="btn-dsa-randomize-sort"
@@ -341,7 +479,7 @@ export const DsaLab: React.FC = () => {
                 className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 flex items-center gap-1 px-2"
                 title="Shuffle Array"
               >
-                <Shuffle className="w-3.5 h-3.5 text-cyan-400" />
+                <Shuffle className="w-3.5 h-3.5 text-pink-400" />
                 <span>Shuffle</span>
               </button>
             </div>
@@ -359,7 +497,7 @@ export const DsaLab: React.FC = () => {
                   setStringA(e.target.value.toUpperCase());
                   setCurrentStepIndex(0);
                 }}
-                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-cyan-300 w-24 uppercase focus:border-cyan-400 focus:outline-none"
+                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-pink-300 w-24 uppercase focus:border-pink-400 focus:outline-none"
               />
               <span className="text-zinc-400">STR 2:</span>
               <input
@@ -371,7 +509,7 @@ export const DsaLab: React.FC = () => {
                   setStringB(e.target.value.toUpperCase());
                   setCurrentStepIndex(0);
                 }}
-                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-cyan-300 w-24 uppercase focus:border-cyan-400 focus:outline-none"
+                className="bg-zinc-900 border border-zinc-700 rounded px-2.5 py-1 text-pink-300 w-24 uppercase focus:border-pink-400 focus:outline-none"
               />
             </div>
           )}
@@ -386,7 +524,7 @@ export const DsaLab: React.FC = () => {
                   setStartGraphNode(e.target.value);
                   setCurrentStepIndex(0);
                 }}
-                className="bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-cyan-300 focus:outline-none"
+                className="bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-pink-300 focus:outline-none"
               >
                 {SAMPLE_GRAPH.nodes.map((n) => (
                   <option key={n.id} value={n.id}>Node {n.id}</option>
@@ -403,8 +541,8 @@ export const DsaLab: React.FC = () => {
             id="dsa-canvas-pane"
             className="lg:col-span-7 xl:col-span-8 p-4 cyber-grid flex flex-col justify-between overflow-y-auto border-b lg:border-b-0 lg:border-r border-zinc-800"
           >
-            {/* 1. Array Visualizer (Binary Search & Sorts) */}
-            {['binary_search', 'bubble_sort', 'selection_sort', 'insertion_sort', 'merge_sort'].includes(
+            {/* 1. Array Visualizer (Binary Search, Sorts, Sliding Window, LIS, Coin Change) */}
+            {['binary_search', 'bubble_sort', 'selection_sort', 'insertion_sort', 'merge_sort', 'quick_sort', 'two_pointers', 'sliding_window', 'lis', 'coin_change', 'word_break'].includes(
               selectedAlgoId
             ) && (
               <div className="flex-1 flex flex-col justify-center items-center py-4">
@@ -412,7 +550,7 @@ export const DsaLab: React.FC = () => {
                   <div className="text-xs font-mono text-zinc-400 mb-4 flex items-center justify-between">
                     <span>ARRAY STATE BUFFER</span>
                     {selectedAlgoId === 'binary_search' && (
-                      <span className="text-cyan-400">
+                      <span className="text-pink-400">
                         LOW: {currentStep.state.low} | MID: {currentStep.state.mid} | HIGH: {currentStep.state.high}
                       </span>
                     )}
@@ -432,9 +570,9 @@ export const DsaLab: React.FC = () => {
                         selectedAlgoId === 'binary_search' &&
                         (idx < currentStep.state.low || idx > currentStep.state.high);
 
-                      let barColor = 'bg-cyan-950/70 border-cyan-500/40 text-cyan-300';
+                      let barColor = 'bg-purple-950/70 border-purple-500/40 text-purple-300';
                       if (isFound) barColor = 'bg-emerald-500 text-black font-bold shadow-[0_0_15px_#10b981]';
-                      else if (isMid) barColor = 'bg-cyan-400 text-black font-bold shadow-[0_0_12px_#06b6d4]';
+                      else if (isMid) barColor = 'bg-pink-500 text-white font-bold shadow-[0_0_12px_#ec4899]';
                       else if (isComparing) barColor = 'bg-amber-500 text-black font-bold animate-pulse';
                       else if (isMin || isKey) barColor = 'bg-indigo-500 text-white font-bold';
                       else if (isOutsideSearch) barColor = 'bg-zinc-900/40 border-zinc-800 text-zinc-400 opacity-40';
@@ -453,7 +591,7 @@ export const DsaLab: React.FC = () => {
                           <div className="text-[9px] font-mono text-zinc-400 mt-1.5 flex flex-col items-center">
                             <span>[{idx}]</span>
                             {isLow && <span className="text-emerald-400 font-bold">L</span>}
-                            {isMid && <span className="text-cyan-400 font-bold">MID</span>}
+                            {isMid && <span className="text-pink-400 font-bold">M</span>}
                             {isHigh && <span className="text-amber-400 font-bold">H</span>}
                           </div>
                         </div>
@@ -464,8 +602,8 @@ export const DsaLab: React.FC = () => {
               </div>
             )}
 
-            {/* 2. Dynamic Programming Grid Visualizer (LCS / Edit Distance) */}
-            {['lcs', 'edit_distance'].includes(selectedAlgoId) && (
+            {/* 2. Dynamic Programming Grid Visualizer (LCS, Edit Distance, Knapsack, Matrix Chain) */}
+            {['lcs', 'edit_distance', 'knapsack_01', 'matrix_chain'].includes(selectedAlgoId) && (
               <div className="flex-1 flex flex-col items-center justify-center p-2">
                 <div className="bg-[#0b0f17]/90 border border-zinc-800 rounded-xl p-4 shadow-xl overflow-auto max-w-full">
                   <div className="text-xs font-mono text-zinc-400 mb-2 flex items-center justify-between">
@@ -520,13 +658,13 @@ export const DsaLab: React.FC = () => {
               </div>
             )}
 
-            {/* 3. Graph Algorithms Visualizer (BFS / DFS / Dijkstra) */}
-            {['bfs', 'dfs', 'dijkstra'].includes(selectedAlgoId) && (
+            {/* 3. Graph Algorithms Visualizer (BFS / DFS / Dijkstra / TopoSort / Kruskal) */}
+            {['bfs', 'dfs', 'dijkstra', 'topological_sort', 'kruskal'].includes(selectedAlgoId) && (
               <div className="flex-1 flex flex-col items-center justify-center p-2">
                 <div className="w-full max-w-xl bg-[#0b0f17]/90 border border-zinc-800 rounded-xl p-4 shadow-xl">
                   <div className="text-xs font-mono text-zinc-400 mb-2 flex items-center justify-between">
                     <span>GRAPH TOPOLOGY & STATE</span>
-                    <span className="text-cyan-400">
+                    <span className="text-pink-400">
                       CURRENT NODE: <strong className="text-white">{currentStep.state.currentNode || 'NONE'}</strong>
                     </span>
                   </div>

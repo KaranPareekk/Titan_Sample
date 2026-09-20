@@ -28,14 +28,22 @@ import { CodeFile, SavedProgram } from '../../types';
 import { StorageService } from '../../services/storage';
 import { runJavaScript, runPython, runJava, ExecutionResult } from './codeRuntime';
 
-const DEFAULT_TEMPLATES: Record<string, string> = {
-  python: `# Python 3.12 Educational Workstation
-# STDIN input() consumption demonstration
+interface TerminalLine {
+  id: string;
+  type: 'stdout' | 'stderr' | 'system' | 'prompt' | 'input-echo';
+  text: string;
+}
 
-n = int(input())
+const DEFAULT_TEMPLATES: Record<string, string> = {
+  python: `# Python 3.12 Interactive Educational Runtime
+print("=== Interactive Python Console ===")
+name = input("Enter your name: ")
+print(f"Welcome to TITAN OS, {name}!")
+
+n = int(input("How many numbers would you like to enter? "))
 nums = []
 for i in range(n):
-    val = int(input())
+    val = int(input(f"Enter element {i + 1}: "))
     nums.append(val)
 
 print("Original array:", nums)
@@ -50,10 +58,16 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("=== TITAN JAVA RUNTIME ===");
         
+        System.out.print("Enter Student Name: ");
         String name = scanner.nextLine();
+        
+        System.out.print("Enter Age: ");
         int age = scanner.nextInt();
+        
+        System.out.print("Enter GPA: ");
         double gpa = scanner.nextDouble();
         
+        System.out.println("\n--- Report Card ---");
         System.out.println("Student: " + name);
         System.out.println("Age: " + age);
         System.out.println("GPA: " + gpa);
@@ -66,9 +80,14 @@ public class Main {
     }
 }
 `,
-  javascript: `// TITAN JavaScript Educational Sandbox
-const limit = parseInt(TITAN.input());
-console.log("Generating Fibonacci numbers up to limit:", limit);
+  javascript: `// TITAN JavaScript Interactive Sandbox
+console.log("=== Interactive JS Runtime ===");
+const name = await prompt("Enter your username: ");
+console.log("Hello,", name);
+
+const limitStr = await prompt("Enter Fibonacci limit (e.g. 7): ");
+const limit = parseInt(limitStr) || 7;
+console.log("Generating Fibonacci numbers up to:", limit);
 
 const fib = [0, 1];
 for (let i = 2; i <= limit; i++) {
@@ -135,12 +154,19 @@ export const CodeLab: React.FC = () => {
     return files.find((f) => f.id === activeFileId) || files[0] || null;
   }, [files, activeFileId]);
 
-  // Code editor buffer and stdin buffer
+  // Code editor buffer and interactive terminal state
   const [code, setCode] = useState<string>(() => (activeFile ? activeFile.content : DEFAULT_TEMPLATES.python));
   const [language, setLanguage] = useState<'javascript' | 'python' | 'java' | 'cpp' | 'sql' | 'text' | 'json'>(
     () => (activeFile ? activeFile.language : 'python')
   );
-  const [stdin, setStdin] = useState<string>(() => DEFAULT_STDINS[language] || '');
+  const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
+  const [waitingForInput, setWaitingForInput] = useState<{
+    prompt: string;
+    resolve: (val: string) => void;
+  } | null>(null);
+  const [inputFieldValue, setInputFieldValue] = useState<string>('');
+  const terminalBottomRef = useRef<HTMLDivElement>(null);
+  const terminalInputRef = useRef<HTMLInputElement>(null);
   const [programTitle, setProgramTitle] = useState<string>(() => (activeFile ? activeFile.name : 'main.py'));
 
   // UI Panels state
@@ -162,10 +188,17 @@ export const CodeLab: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
+  useEffect(() => {
+    terminalBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (waitingForInput) {
+      setTimeout(() => terminalInputRef.current?.focus(), 50);
+    }
+  }, [terminalLines, waitingForInput]);
+
   // New File Form State
   const [newFileName, setNewFileName] = useState<string>('');
   const [newFileFolder, setNewFileFolder] = useState<string>('src');
-  const [newFileLang, setNewFileLang] = useState<'python' | 'javascript' | 'java' | 'sql' | 'text' | 'json'>('python');
+  const [newFileLang, setNewFileLang] = useState<'python' | 'javascript' | 'java' | 'cpp' | 'sql' | 'text' | 'json'>('python');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -180,8 +213,9 @@ export const CodeLab: React.FC = () => {
       setCode(activeFile.content);
       setLanguage(activeFile.language);
       setProgramTitle(activeFile.name);
-      setStdin(DEFAULT_STDINS[activeFile.language] || '');
       setExecutionResult(null);
+      setTerminalLines([]);
+      setWaitingForInput(null);
       setActiveExecutedLine(null);
     }
   }, [activeFileId]);
@@ -232,8 +266,9 @@ export const CodeLab: React.FC = () => {
     setLanguage(newLang);
     const template = DEFAULT_TEMPLATES[newLang] || '';
     setCode(template);
-    setStdin(DEFAULT_STDINS[newLang] || '');
     setExecutionResult(null);
+    setTerminalLines([]);
+    setWaitingForInput(null);
     setActiveExecutedLine(null);
 
     if (activeFile) {
@@ -248,19 +283,76 @@ export const CodeLab: React.FC = () => {
     }
   };
 
-  // Run Code
-  const handleRunCode = () => {
+  // Handle interactive input submission
+  const handleSendInput = () => {
+    if (!waitingForInput) return;
+    const val = inputFieldValue;
+    const resolver = waitingForInput.resolve;
+    setTerminalLines((prev) => [
+      ...prev,
+      { id: `echo_${Date.now()}_${Math.random()}`, type: 'input-echo', text: `> ${val}` },
+    ]);
+    setWaitingForInput(null);
+    setInputFieldValue('');
+    resolver(val);
+  };
+
+  // Terminate execution
+  const handleStopCode = () => {
+    if (waitingForInput) {
+      waitingForInput.resolve('');
+      setWaitingForInput(null);
+    }
+    setIsRunning(false);
+    setTerminalLines((prev) => [
+      ...prev,
+      { id: `stop_${Date.now()}`, type: 'system', text: '[TITAN] Process terminated by user.' },
+    ]);
+  };
+
+  // Interactive Async Run Code
+  const handleRunCode = async () => {
     setIsRunning(true);
     setActiveExecutedLine(null);
+    setExecutionResult(null);
+    setTerminalLines([
+      {
+        id: `init_${Date.now()}`,
+        type: 'system',
+        text: `[TITAN] Starting ${language.toUpperCase()} interactive session...`,
+      },
+    ]);
 
-    setTimeout(() => {
+    const onPrompt = (promptText?: string): Promise<string> => {
+      return new Promise((resolve) => {
+        const p = promptText || '[INPUT REQUIRED] > ';
+        setTerminalLines((prev) => [
+          ...prev,
+          { id: `prompt_${Date.now()}_${Math.random()}`, type: 'prompt', text: p },
+        ]);
+        setWaitingForInput({ prompt: p, resolve });
+      });
+    };
+
+    const onOutput = (line: string, isError?: boolean) => {
+      setTerminalLines((prev) => [
+        ...prev,
+        {
+          id: `out_${Date.now()}_${Math.random()}`,
+          type: isError ? 'stderr' : 'stdout',
+          text: line,
+        },
+      ]);
+    };
+
+    try {
       let result: ExecutionResult;
       if (language === 'python') {
-        result = runPython(code, stdin);
+        result = await runPython(code, onPrompt, onOutput, '');
       } else if (language === 'java') {
-        result = runJava(code, stdin);
+        result = await runJava(code, onPrompt, onOutput, '');
       } else if (language === 'javascript') {
-        result = runJavaScript(code, stdin);
+        result = await runJavaScript(code, onPrompt, onOutput, '');
       } else {
         result = {
           stdout: [
@@ -273,14 +365,27 @@ export const CodeLab: React.FC = () => {
           success: true,
           executedLines: [],
         };
+        result.stdout.forEach((l) => onOutput(l, false));
       }
 
       setExecutionResult(result);
       if (result.executedLines.length > 0) {
         setActiveExecutedLine(result.executedLines[result.executedLines.length - 1]);
       }
+      setTerminalLines((prev) => [
+        ...prev,
+        {
+          id: `exit_${Date.now()}`,
+          type: 'system',
+          text: `Process finished with exit code ${result.success ? 0 : 1} (${result.executionTimeMs} ms)`,
+        },
+      ]);
+    } catch (err: any) {
+      onOutput(`Fatal Error: ${err?.message || err}`, true);
+    } finally {
+      setWaitingForInput(null);
       setIsRunning(false);
-    }, 120);
+    }
   };
 
   // Save File
@@ -298,11 +403,11 @@ export const CodeLab: React.FC = () => {
     }
 
     const newProg: SavedProgram = {
-      id: activeFile ? activeFile.id : `prog_\${Date.now()}`,
-      title: programTitle || `\${language.toUpperCase()} Program`,
+      id: activeFile ? activeFile.id : `prog_${Date.now()}`,
+      title: programTitle || `${language.toUpperCase()} Program`,
       language: (language === 'python' || language === 'java' || language === 'javascript') ? language : 'javascript',
       code,
-      stdin,
+      stdin: '',
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -317,7 +422,7 @@ export const CodeLab: React.FC = () => {
   const handleCreateNewFile = () => {
     if (!newFileName.trim()) return;
     let finalName = newFileName.trim();
-    let detectedLang: CodeFile['language'] = newFileLang;
+    let detectedLang = newFileLang;
 
     if (finalName.endsWith('.py')) detectedLang = 'python';
     else if (finalName.endsWith('.java')) detectedLang = 'java';
@@ -340,11 +445,11 @@ export const CodeLab: React.FC = () => {
     }
 
     const newFile: CodeFile = {
-      id: `file_\${Date.now()}`,
+      id: `file_${Date.now()}`,
       name: finalName,
       folder: newFileFolder.trim() || 'src',
       language: detectedLang,
-      content: DEFAULT_TEMPLATES[detectedLang] || `// \${finalName}\n`,
+      content: DEFAULT_TEMPLATES[detectedLang] || `// ${finalName}\n`,
       isCustom: true,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -400,7 +505,7 @@ export const CodeLab: React.FC = () => {
         else if (name.endsWith('.cpp') || name.endsWith('.c') || name.endsWith('.h')) lang = 'cpp';
 
         const newFile: CodeFile = {
-          id: `file_imported_\${Date.now()}_\${Math.random().toString(36).substr(2, 4)}`,
+          id: `file_imported_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
           name,
           folder: 'imported',
           language: lang,
@@ -480,7 +585,7 @@ export const CodeLab: React.FC = () => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className="h-full w-full flex flex-col bg-[#07090e] text-zinc-100 select-none overflow-hidden relative"
+      className="h-full w-full flex flex-col notes-texture text-zinc-100 select-none overflow-hidden relative"
     >
       {/* Drag & drop overlay */}
       {isDragging && (
@@ -540,9 +645,9 @@ export const CodeLab: React.FC = () => {
               <button
                 key={lang}
                 type="button"
-                id={`btn-lang-\${lang}`}
+                id={`btn-lang-${lang}`}
                 onClick={() => handleLanguageChange(lang)}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold transition-all cursor-pointer \${
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold transition-all cursor-pointer ${
                   language === lang
                     ? 'bg-cyan-500 text-black shadow-[0_0_8px_#06b6d4]'
                     : 'text-zinc-400 hover:text-zinc-200'
@@ -572,8 +677,21 @@ export const CodeLab: React.FC = () => {
             className="px-3.5 py-1.5 rounded bg-emerald-500 hover:bg-emerald-400 text-black font-tech font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(16,185,129,0.4)] disabled:opacity-50 cursor-pointer"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
-            <span>{isRunning ? 'EXECUTING...' : 'RUN'}</span>
+            <span>{isRunning ? 'RUNNING...' : 'RUN'}</span>
           </button>
+
+          {/* STOP PROGRAM (Visible while running/waiting for input) */}
+          {isRunning && (
+            <button
+              id="btn-stop-code"
+              type="button"
+              onClick={handleStopCode}
+              title="Terminate running process"
+              className="px-2.5 py-1.5 rounded bg-red-600/80 hover:bg-red-500 text-white font-tech font-bold text-xs flex items-center gap-1 transition-all cursor-pointer animate-pulse"
+            >
+              STOP
+            </button>
+          )}
 
           {/* SAVE */}
           <button
@@ -615,7 +733,7 @@ export const CodeLab: React.FC = () => {
               type="button"
               onClick={() => setViewMode('split')}
               title="Split View (Editor + Terminal)"
-              className={`p-1 rounded cursor-pointer \${viewMode === 'split' ? 'bg-zinc-700 text-cyan-300' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`p-1 rounded cursor-pointer ${viewMode === 'split' ? 'bg-zinc-700 text-cyan-300' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               <Split className="w-3.5 h-3.5" />
             </button>
@@ -623,7 +741,7 @@ export const CodeLab: React.FC = () => {
               type="button"
               onClick={() => setViewMode('editor')}
               title="Maximized Editor"
-              className={`p-1 rounded cursor-pointer \${viewMode === 'editor' ? 'bg-zinc-700 text-cyan-300' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`p-1 rounded cursor-pointer ${viewMode === 'editor' ? 'bg-zinc-700 text-cyan-300' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               <Maximize2 className="w-3.5 h-3.5" />
             </button>
@@ -631,7 +749,7 @@ export const CodeLab: React.FC = () => {
               type="button"
               onClick={() => setViewMode('terminal')}
               title="Maximized Terminal"
-              className={`p-1 rounded cursor-pointer \${viewMode === 'terminal' ? 'bg-zinc-700 text-cyan-300' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`p-1 rounded cursor-pointer ${viewMode === 'terminal' ? 'bg-zinc-700 text-cyan-300' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               <Terminal className="w-3.5 h-3.5" />
             </button>
@@ -643,8 +761,10 @@ export const CodeLab: React.FC = () => {
             type="button"
             onClick={() => {
               setCode(DEFAULT_TEMPLATES[language] || '');
-              setStdin(DEFAULT_STDINS[language] || '');
               setExecutionResult(null);
+              setActiveExecutedLine(null);
+              setTerminalLines([]);
+              setWaitingForInput(null);
             }}
             className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white border border-zinc-700 cursor-pointer"
             title="Reset to Language Template"
@@ -727,7 +847,7 @@ export const CodeLab: React.FC = () => {
                             <div
                               key={file.id}
                               onClick={() => handleSelectFile(file.id)}
-                              className={`group flex items-center justify-between py-1 px-2 rounded cursor-pointer transition-all \${
+                              className={`group flex items-center justify-between py-1 px-2 rounded cursor-pointer transition-all ${
                                 isActive
                                   ? 'bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 font-semibold'
                                   : 'text-slate-400 hover:text-slate-200 hover:bg-zinc-900'
@@ -757,6 +877,14 @@ export const CodeLab: React.FC = () => {
                   </div>
                 );
               })}
+
+              {/* Import Tip Box */}
+              <div className="mt-4 p-2.5 rounded-lg border border-dashed border-zinc-800 bg-zinc-950/50 text-[10px] text-slate-400 flex flex-col gap-1.5">
+                <span className="text-cyan-400 font-bold flex items-center gap-1">
+                  <Upload className="w-3 h-3" /> Quick Import
+                </span>
+                <span>Drag & drop files anywhere or click Import to load local source files.</span>
+              </div>
             </div>
           </aside>
         )}
@@ -774,7 +902,7 @@ export const CodeLab: React.FC = () => {
                 <div
                   key={fileId}
                   onClick={() => handleSelectFile(fileId)}
-                  className={`flex items-center gap-2 px-3 py-1 text-xs font-mono rounded-t cursor-pointer border-t-2 transition-all \${
+                  className={`flex items-center gap-2 px-3 py-1 text-xs font-mono rounded-t cursor-pointer border-t-2 transition-all ${
                     isActive
                       ? 'bg-[#07090e] text-cyan-300 border-cyan-400 font-semibold'
                       : 'bg-zinc-900/60 text-slate-400 border-transparent hover:text-slate-200 hover:bg-zinc-800/60'
@@ -802,7 +930,7 @@ export const CodeLab: React.FC = () => {
             {viewMode !== 'terminal' && (
               <div
                 id="codelab-editor-pane"
-                className={`\${
+                className={`${
                   viewMode === 'editor' ? 'lg:col-span-12' : 'lg:col-span-7'
                 } flex flex-col border-b lg:border-b-0 lg:border-r border-zinc-800 bg-[#07090e] overflow-hidden`}
               >
@@ -818,18 +946,18 @@ export const CodeLab: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Textarea Code Editor with line gutter */}
-                <div className="flex-1 flex overflow-hidden font-mono text-xs">
-                  {/* Line numbers column */}
-                  <div className="w-10 bg-[#05070a] border-r border-zinc-800/80 py-3 text-right pr-2 text-zinc-500 select-none overflow-hidden shrink-0">
+                {/* Textarea Code Editor with line-locked ruled notebook paper */}
+                <div className="flex-1 flex overflow-hidden font-mono text-[13px] ruled-notebook-paper">
+                  {/* Line numbers column (w-12 = 48px to match notebook margin rule) */}
+                  <div className="w-12 bg-black/30 border-r border-rose-500/20 pt-0 text-right pr-2 text-purple-300/40 select-none overflow-hidden shrink-0">
                     {Array.from({ length: lineCount }).map((_, i) => {
                       const lineNum = i + 1;
                       const isExecuted = activeExecutedLine === lineNum;
                       return (
                         <div
                           key={i}
-                          className={`leading-relaxed \${
-                            isExecuted ? 'text-cyan-400 font-bold bg-cyan-950/80' : ''
+                          className={`h-[28px] leading-[28px] text-[12px] ${
+                            isExecuted ? 'text-pink-300 font-bold bg-pink-950/80 border-r-2 border-pink-400' : ''
                           }`}
                         >
                           {lineNum}
@@ -838,7 +966,7 @@ export const CodeLab: React.FC = () => {
                     })}
                   </div>
 
-                  {/* Editable code area */}
+                  {/* Editable code area sitting directly on ruled lines */}
                   <textarea
                     id="editor-code-textarea"
                     value={code}
@@ -847,7 +975,7 @@ export const CodeLab: React.FC = () => {
                       handlePersistActiveFileContent(e.target.value);
                     }}
                     spellCheck={false}
-                    className="flex-1 p-3 bg-transparent text-zinc-200 font-mono text-xs leading-relaxed focus:outline-none resize-none overflow-auto whitespace-pre"
+                    className="flex-1 pt-0 pl-3.5 pr-4 pb-8 bg-transparent text-purple-100 font-mono text-[13px] leading-[28px] focus:outline-none resize-none overflow-auto whitespace-pre"
                   />
                 </div>
               </div>
@@ -859,73 +987,135 @@ export const CodeLab: React.FC = () => {
                 id="codelab-terminal-pane"
                 className={`${
                   viewMode === 'terminal' ? 'lg:col-span-12' : 'lg:col-span-5'
-                } flex flex-col bg-[#080b11] overflow-hidden`}
+                } flex flex-col bg-[#080b11] overflow-hidden border-l border-zinc-800`}
               >
-                {/* STDIN Input Buffer Header & Area */}
-                <div className="border-b border-zinc-800 p-3 bg-[#0a0e16] flex flex-col shrink-0">
-                  <div className="flex items-center text-[11px] font-mono mb-1.5">
-                    <span className="text-cyan-400 font-bold uppercase flex items-center gap-1.5">
-                      <Hash className="w-3.5 h-3.5" />
-                      STDIN
-                    </span>
-                  </div>
-                  <textarea
-                    id="stdin-input-textarea"
-                    value={stdin}
-                    onChange={(e) => setStdin(e.target.value)}
-                    rows={3}
-                    placeholder="Enter input values separated by newlines..."
-                    className="w-full bg-[#05070a] border border-zinc-800 rounded p-2 text-xs font-mono text-cyan-300 focus:border-cyan-500 focus:outline-none resize-none"
-                  />
-                </div>
-
-                {/* Terminal Output Terminal */}
-                <div className="h-7 bg-[#0b0f17] border-b border-zinc-800 px-3 flex items-center justify-between text-[10px] font-mono text-zinc-400 shrink-0">
-                  <div className="flex items-center gap-1.5">
+                {/* Terminal Console Header */}
+                <div className="h-8 bg-[#0b0f17] border-b border-zinc-800 px-3 flex items-center justify-between text-[11px] font-mono text-zinc-400 shrink-0">
+                  <div className="flex items-center gap-2">
                     <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>TERMINAL CONSOLE</span>
+                    <span className="font-bold text-zinc-300 uppercase tracking-wider">INTERACTIVE TERMINAL</span>
+                    {waitingForInput && (
+                      <span className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-bold border border-cyan-500/50 animate-pulse flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                        AWAITING INPUT
+                      </span>
+                    )}
                   </div>
-                  {executionResult && (
-                    <span
-                      className={`font-bold \${
-                        executionResult.success ? 'text-emerald-400' : 'text-red-400'
-                      }`}
+                  <div className="flex items-center gap-2">
+                    {executionResult && (
+                      <span
+                        className={`font-bold text-[10px] px-1.5 py-0.5 rounded ${
+                          executionResult.success
+                            ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/40'
+                            : 'bg-red-950/80 text-red-400 border border-red-500/40'
+                        }`}
+                      >
+                        {executionResult.success ? 'EXIT 0' : 'EXIT 1'}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTerminalLines([]);
+                        setExecutionResult(null);
+                      }}
+                      className="text-[10px] text-zinc-500 hover:text-zinc-200 px-1.5 py-0.5 rounded hover:bg-zinc-800 cursor-pointer"
+                      title="Clear Terminal Output"
                     >
-                      {executionResult.success ? 'PASS (EXIT 0)' : 'ERROR (EXIT 1)'}
-                    </span>
-                  )}
+                      Clear
+                    </button>
+                  </div>
                 </div>
 
+                {/* Terminal Output Area */}
                 <div
                   id="terminal-stdout-area"
-                  className="flex-1 p-3 bg-[#040609] overflow-y-auto font-mono text-xs text-zinc-300 space-y-1 select-text"
+                  className="flex-1 p-3.5 bg-[#040609] overflow-y-auto font-mono text-xs text-zinc-300 space-y-1 select-text flex flex-col justify-start"
                 >
-                  {!executionResult ? (
-                    <div className="text-zinc-600 font-mono">▌</div>
-                  ) : (
-                    <>
-                      {executionResult.stdout.map((line, idx) => (
-                        <div key={idx} className="text-zinc-200 leading-relaxed font-mono">
-                          {line}
-                        </div>
-                      ))}
+                  {terminalLines.length === 0 && !waitingForInput && (
+                    <div className="text-zinc-500 italic text-[11px] leading-relaxed p-2">
+                      Ready. Click <span className="text-emerald-400 font-bold">RUN</span> to execute in interactive browser runtime.
+                      <br />
+                      Any call to <code className="text-cyan-400 font-mono">input()</code> or <code className="text-purple-400 font-mono">scanner.nextLine()</code> will pause and prompt right here.
+                    </div>
+                  )}
 
-                      {executionResult.stderr.map((err, idx) => (
+                  {terminalLines.map((line) => {
+                    if (line.type === 'stdout') {
+                      return (
+                        <div key={line.id} className="text-zinc-200 font-mono leading-relaxed whitespace-pre-wrap">
+                          {line.text}
+                        </div>
+                      );
+                    }
+                    if (line.type === 'stderr') {
+                      return (
                         <div
-                          key={idx}
-                          className="text-red-400 font-bold leading-relaxed flex items-start gap-1.5 mt-1"
+                          key={line.id}
+                          className="text-red-400 font-mono font-bold leading-relaxed flex items-start gap-1.5 mt-0.5 whitespace-pre-wrap"
                         >
                           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                          <span>{err}</span>
+                          <span>{line.text}</span>
                         </div>
-                      ))}
-
-                      <div className="mt-4 pt-2 border-t border-zinc-800/80 text-[10px] text-zinc-500 flex items-center justify-between">
-                        <span>Process exit code: {executionResult.success ? 0 : 1}</span>
-                        <span>Execution Time: {executionResult.executionTimeMs} ms</span>
+                      );
+                    }
+                    if (line.type === 'prompt') {
+                      return (
+                        <div key={line.id} className="text-cyan-400 font-mono font-bold text-xs py-0.5 flex items-center gap-1.5">
+                          <span>{line.text}</span>
+                        </div>
+                      );
+                    }
+                    if (line.type === 'input-echo') {
+                      return (
+                        <div
+                          key={line.id}
+                          className="text-emerald-300 font-mono font-bold text-xs pl-2.5 py-0.5 bg-emerald-950/30 border-l-2 border-emerald-500 rounded-r"
+                        >
+                          {line.text}
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={line.id} className="text-zinc-500 italic text-[10px] py-0.5 border-t border-zinc-900">
+                        {line.text}
                       </div>
-                    </>
+                    );
+                  })}
+
+                  {/* Interactive Input Prompt Bar */}
+                  {waitingForInput && (
+                    <div className="mt-2.5 p-2 rounded-lg bg-[#0c1424] border border-cyan-500/60 flex items-center gap-2 shadow-lg shadow-cyan-950/60">
+                      <span className="text-cyan-400 font-bold text-xs shrink-0 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                        {waitingForInput.prompt}
+                      </span>
+                      <input
+                        ref={terminalInputRef}
+                        type="text"
+                        value={inputFieldValue}
+                        onChange={(e) => setInputFieldValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSendInput();
+                          }
+                        }}
+                        autoFocus
+                        placeholder="Enter value and press Enter..."
+                        className="flex-1 bg-black/70 border border-cyan-500/40 rounded px-2.5 py-1 text-xs font-mono text-cyan-200 focus:outline-none focus:border-cyan-300 placeholder-zinc-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSendInput}
+                        className="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-xs font-bold rounded shadow transition-colors cursor-pointer shrink-0"
+                      >
+                        Enter ↵
+                      </button>
+                    </div>
                   )}
+
+                  <div ref={terminalBottomRef} />
                 </div>
               </div>
             )}
